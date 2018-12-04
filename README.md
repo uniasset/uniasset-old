@@ -1,4 +1,4 @@
-Omni Core (beta) integration/staging tree
+UniAsset Core (beta) integration/staging tree
 =========================================
 
 [![Build Status](https://travis-ci.org/uniasset/uniasset.svg?branch=uniasset-0.13)](https://travis-ci.org/uniasset/uniasset)
@@ -9,17 +9,17 @@ The UniAsset is a communications protocol that uses the Bitcoin block chain to e
 
 http://www.omnilayer.org
 
-What is Omni Core
+What is UniAsset Core
 -----------------
 
-Omni Core is a fast, portable UniAsset implementation that is based off the Bitcoin Core codebase (currently 0.13). This implementation requires no external dependencies extraneous to Bitcoin Core, and is native to the Bitcoin network just like other Bitcoin nodes. It currently supports a wallet mode and is seamlessly available on three platforms: Windows, Linux and Mac OS. UniAsset extensions are exposed via the JSON-RPC interface. Development has been consolidated on the Omni Core product, and it is the reference client for the UniAsset.
+UniAsset Core is a fast, portable UniAsset implementation that is based off the Bitcoin Core codebase (currently 0.13). This implementation requires no external dependencies extraneous to Bitcoin Core, and is native to the Bitcoin network just like other Bitcoin nodes. It currently supports a wallet mode and is seamlessly available on three platforms: Windows, Linux and Mac OS. UniAsset extensions are exposed via the JSON-RPC interface. Development has been consolidated on the UniAsset Core product, and it is the reference client for the UniAsset.
 
-![Omni Core send dialog](https://i.imgur.com/q2obBQC.png "A screenshot of sending tokens with Omni Core")
+![UniAsset Core send dialog](https://i.imgur.com/q2obBQC.png "A screenshot of sending tokens with UniAsset Core")
 
 Need help?
 ----------
 
-* Check out guides and FAQs in the [Omni Core wiki](https://github.com/OmniLayer/omnicore/wiki).
+* Check out guides and FAQs in the [UniAsset Core wiki](https://github.com/OmniLayer/omnicore/wiki).
 
 * Feel free to open a [GitHub issue](https://github.com/OmniLayer/omnicore/issues) to file a bug submission or ask any question.
 
@@ -29,9 +29,9 @@ This software is EXPERIMENTAL software. USE ON MAINNET AT YOUR OWN RISK.
 
 By default this software will use your existing Bitcoin wallet, including spending bitcoins contained therein (for example for transaction fees or trading).
 The protocol and transaction processing rules for the UniAsset are still under active development and are subject to change in future.
-Omni Core should be considered an alpha-level product, and you use it at your own risk. Neither the Omni Foundation nor the Omni Core developers assumes any responsibility for funds misplaced, mishandled, lost, or misallocated.
+UniAsset Core should be considered an alpha-level product, and you use it at your own risk. Neither the Omni Foundation nor the UniAsset Core developers assumes any responsibility for funds misplaced, mishandled, lost, or misallocated.
 
-Further, please note that this installation of Omni Core should be viewed as EXPERIMENTAL. Your wallet data, bitcoins and UniAsset tokens may be lost, deleted, or corrupted, with or without warning due to bugs or glitches. Please take caution.
+Further, please note that this installation of UniAsset Core should be viewed as EXPERIMENTAL. Your wallet data, bitcoins and UniAsset tokens may be lost, deleted, or corrupted, with or without warning due to bugs or glitches. Please take caution.
 
 This software is provided open-source at no cost. You are responsible for knowing the law in your country and determining if your use of this software contravenes any local laws.
 
@@ -40,9 +40,9 @@ PLEASE DO NOT use wallet(s) with significant amounts of bitcoins or UniAsset tok
 Testnet
 -------
 
-Testnet mode allows Omni Core to be run on the Bitcoin testnet blockchain for safe testing.
+Testnet mode allows UniAsset Core to be run on the Bitcoin testnet blockchain for safe testing.
 
-1. To run Omni Core in testnet mode, run Omni Core with the following option in place: `-testnet`.
+1. To run UniAsset Core in testnet mode, run UniAsset Core with the following option in place: `-testnet`.
 
 2. To receive OMNI (and TOMNI) on testnet please send TBTC to `moneyqMan7uh8FqdCA2BV5yZ8qVrc9ikLP`. For each 1 TBTC you will receive 100 OMNI and 100 TOMNI.
 
@@ -53,7 +53,7 @@ Boost >= 1.53
 Installation
 ------------
 
-You will need appropriate libraries to run Omni Core on Unix,
+You will need appropriate libraries to run UniAsset Core on Unix,
 please see [doc/build-unix.md](doc/build-unix.md) for the full listing.
 
 You will need to install git & pkg-config:
@@ -63,7 +63,7 @@ sudo apt-get install git
 sudo apt-get install pkg-config
 ```
 
-Clone the Omni Core repository:
+Clone the UniAsset Core repository:
 
 ```
 git clone https://github.com/OmniLayer/omnicore.git
@@ -82,15 +82,15 @@ Once complete:
 ```
 cd src/
 ```
-And start Omni Core using `./omnicored` (or `./qt/omnicore-qt` if built with UI). The inital parse step for a first time run
+And start UniAsset Core using `./omnicored` (or `./qt/omnicore-qt` if built with UI). The inital parse step for a first time run
 will take up to 60 minutes or more, during this time your client will scan the blockchain for UniAsset transactions. You can view the
 output of the parsing at any time by viewing the log located in your datadir, by default: `~/.bitcoin/omnicore.log`.
 
-Omni Core requires the transaction index to be enabled. Add an entry to your bitcoin.conf file for `txindex=1` to enable it or Omni Core will refuse to start.
+UniAsset Core requires the transaction index to be enabled. Add an entry to your bitcoin.conf file for `txindex=1` to enable it or UniAsset Core will refuse to start.
 
 If a message is returned asking you to reindex, pass the `-reindex` flag as startup option. The reindexing process can take serveral hours.
 
-To issue RPC commands to Omni Core you may add the `-server=1` CLI flag or add an entry to the bitcoin.conf file (located in `~/.bitcoin/` by default).
+To issue RPC commands to UniAsset Core you may add the `-server=1` CLI flag or add an entry to the bitcoin.conf file (located in `~/.bitcoin/` by default).
 
 In bitcoin.conf:
 ```
