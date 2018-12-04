@@ -10,6 +10,97 @@ All available commands can be listed with `"help"`, and information about a spec
 *Please note: this document may not always be up-to-date. There may be errors, omissions or inaccuracies present.*
 
 
+## Table of contents
+
+- [Transaction creation](#transaction-creation)
+  - [omni_send](#omni_send)
+  - [omni_senddexsell](#omni_senddexsell)
+  - [omni_senddexaccept](#omni_senddexaccept)
+  - [omni_sendissuancecrowdsale](#omni_sendissuancecrowdsale)
+  - [omni_sendissuancefixed](#omni_sendissuancefixed)
+  - [omni_sendissuancemanaged](#omni_sendissuancemanaged)
+  - [omni_sendsto](#omni_sendsto)
+  - [omni_sendgrant](#omni_sendgrant)
+  - [omni_sendrevoke](#omni_sendrevoke)
+  - [omni_sendclosecrowdsale](#omni_sendclosecrowdsale)
+  - [omni_sendtrade](#omni_sendtrade)
+  - [omni_sendcanceltradesbyprice](#omni_sendcanceltradesbyprice)
+  - [omni_sendcanceltradesbypair](#omni_sendcanceltradesbypair)
+  - [omni_sendcancelalltrades](#omni_sendcancelalltrades)
+  - [omni_sendchangeissuer](#omni_sendchangeissuer)
+  - [omni_sendall](#omni_sendall)
+  - [omni_sendenablefreezing](#omni_sendenablefreezing)
+  - [omni_senddisablefreezing](#omni_senddisablefreezing)
+  - [omni_sendfreeze](#omni_sendfreeze)
+  - [omni_sendunfreeze](#omni_sendunfreeze)
+  - [omni_sendrawtx](#omni_sendrawtx)
+  - [omni_funded_send](#omni_funded_send)
+  - [omni_funded_sendall](#omni_funded_sendall)
+- [Data retrieval](#data-retrieval)
+  - [omni_getinfo](#omni_getinfo)
+  - [omni_getbalance](#omni_getbalance)
+  - [omni_getallbalancesforid](#omni_getallbalancesforid)
+  - [omni_getallbalancesforaddress](#omni_getallbalancesforaddress)
+  - [omni_getwalletbalances](#omni_getwalletbalances)
+  - [omni_getwalletaddressbalances](#omni_getwalletaddressbalances)
+  - [omni_gettransaction](#omni_gettransaction)
+  - [omni_listtransactions](#omni_listtransactions)
+  - [omni_listblocktransactions](#omni_listblocktransactions)
+  - [omni_listpendingtransactions](#omni_listpendingtransactions)
+  - [omni_getactivedexsells](#omni_getactivedexsells)
+  - [omni_listproperties](#omni_listproperties)
+  - [omni_getproperty](#omni_getproperty)
+  - [omni_getactivecrowdsales](#omni_getactivecrowdsales)
+  - [omni_getcrowdsale](#omni_getcrowdsale)
+  - [omni_getgrants](#omni_getgrants)
+  - [omni_getsto](#omni_getsto)
+  - [omni_gettrade](#omni_gettrade)
+  - [omni_getorderbook](#omni_getorderbook)
+  - [omni_gettradehistoryforpair](#omni_gettradehistoryforpair)
+  - [omni_gettradehistoryforaddress](#omni_gettradehistoryforaddress)
+  - [omni_getactivations](#omni_getactivations)
+  - [omni_getpayload](#omni_getpayload)
+  - [omni_getseedblocks](#omni_getseedblocks)
+  - [omni_getcurrentconsensushash](#omni_getcurrentconsensushash)
+- [Raw transactions](#raw-transactions)
+  - [omni_decodetransaction](#omni_decodetransaction)
+  - [omni_createrawtx_opreturn](#omni_createrawtx_opreturn)
+  - [omni_createrawtx_multisig](#omni_createrawtx_multisig)
+  - [omni_createrawtx_input](#omni_createrawtx_input)
+  - [omni_createrawtx_reference](#omni_createrawtx_reference)
+  - [omni_createrawtx_change](#omni_createrawtx_change)
+  - [omni_createpayload_simplesend](#omni_createpayload_simplesend)
+  - [omni_createpayload_sendall](#omni_createpayload_sendall)
+  - [omni_createpayload_dexsell](#omni_createpayload_dexsell)
+  - [omni_createpayload_dexaccept](#omni_createpayload_dexaccept)
+  - [omni_createpayload_sto](#omni_createpayload_sto)
+  - [omni_createpayload_issuancefixed](#omni_createpayload_issuancefixed)
+  - [omni_createpayload_issuancecrowdsale](#omni_createpayload_issuancecrowdsale)
+  - [omni_createpayload_issuancemanaged](#omni_createpayload_issuancemanaged)
+  - [omni_createpayload_closecrowdsale](#omni_createpayload_closecrowdsale)
+  - [omni_createpayload_grant](#omni_createpayload_grant)
+  - [omni_createpayload_revoke](#omni_createpayload_revoke)
+  - [omni_createpayload_changeissuer](#omni_createpayload_changeissuer)
+  - [omni_createpayload_trade](#omni_createpayload_trade)
+  - [omni_createpayload_canceltradesbyprice](#omni_createpayload_canceltradesbyprice)
+  - [omni_createpayload_canceltradesbypair](#omni_createpayload_canceltradesbypair)
+  - [omni_createpayload_cancelalltrades](#omni_createpayload_cancelalltrades)
+  - [omni_createpayload_enablefreezing](#omni_createpayload_enablefreezing)
+  - [omni_createpayload_disablefreezing](#omni_createpayload_disablefreezing)
+  - [omni_createpayload_freeze](#omni_createpayload_freeze)
+  - [omni_createpayload_unfreeze](#omni_createpayload_unfreeze)
+- [Fee system](#fee-system)
+  - [omni_getfeecache](#omni_getfeecache)
+  - [omni_getfeetrigger](#omni_getfeetrigger)
+  - [omni_getfeeshare](#omni_getfeeshare)
+  - [omni_getfeedistribution](#omni_getfeedistribution)
+  - [omni_getfeedistributions](#omni_getfeedistributions)
+- [Configuration](#configuration)
+  - [omni_setautocommit](#omni_setautocommit)
+- [Depreciated API calls](#depreciated-api-calls)
+
+---
+
 ## Transaction creation
 
 The RPCs for transaction creation can be used to create and broadcast Omni Protocol transactions.
@@ -157,10 +248,6 @@ Create new tokens with fixed supply.
 | `url`               | string  | required | an URL for further information about the new tokens (can be `""`)                            |
 | `data`              | string  | required | a description for the new tokens (can be `""`)                                               |
 | `amount`            | string  | required | the number of tokens to create                                                               |
-| `tokensperunit`     | string  | required | the amount of tokens granted per unit invested in the crowdsale                              |
-| `deadline`          | number  | required | the deadline of the crowdsale as Unix timestamp                                              |
-| `earlybonus`        | number  | required | an early bird bonus for participants in percent per week                                     |
-| `issuerpercentage`  | number  | required | a percentage of tokens that will be granted to the issuer                                    |
 
 **Result:**
 ```js
@@ -605,6 +692,66 @@ $ omnicore-cli "omni_sendrawtx" \
 
 ---
 
+### omni_funded_send
+
+Creates and sends a funded simple send transaction.
+
+All coins from the sender are consumed and if there are coins missing, they are taken from the specified fee source. Change is sent to the fee source!
+
+**Arguments:**
+
+| Name                | Type    | Presence | Description                                                                                  |
+|---------------------|---------|----------|----------------------------------------------------------------------------------------------|
+| `fromaddress`       | string  | required | the address to send from                                                                     |
+| `toaddress`         | string  | required | the address of the receiver                                                                  |
+| `propertyid`        | number  | required | the identifier of the tokens to send                                                         |
+| `amount`            | string  | required | the amount to send                                                                           |
+| `feeaddress`        | string  | required | the address that is used to pay for fees, if needed                                          |
+
+**Result:**
+```js
+"hash"  // (string) the hex-encoded transaction hash
+```
+
+**Example:**
+
+```bash
+$ omnicore-cli "omni_funded_send" "1DFa5bT6KMEr6ta29QJouainsjaNBsJQhH" \
+    "15cWrfuvMxyxGst2FisrQcvcpF48x6sXoH" 1 "100.0" \
+    "15Jhzz4omEXEyFKbdcccJwuVPea5LqsKM1"
+```
+
+---
+
+### omni_funded_sendall
+
+Creates and sends a transaction that transfers all available tokens in the given ecosystem to the recipient.
+
+All coins from the sender are consumed and if there are coins missing, they are taken from the specified fee source. Change is sent to the fee source!
+
+**Arguments:**
+
+| Name                | Type    | Presence | Description                                                                                  |
+|---------------------|---------|----------|----------------------------------------------------------------------------------------------|
+| `fromaddress`       | string  | required | the address to send from                                                                     |
+| `toaddress`         | string  | required | the address of the receiver                                                                  |
+| `ecosystem`         | number  | required | the ecosystem of the tokens to send (1 for main ecosystem, 2 for test ecosystem)             |
+| `feeaddress`        | string  | required | the address that is used to pay for fees, if needed                                          |
+
+**Result:**
+```js
+"hash"  // (string) the hex-encoded transaction hash
+```
+
+**Example:**
+
+```bash
+$ omnicore-cli "omni_funded_sendall" "1DFa5bT6KMEr6ta29QJouainsjaNBsJQhH" \
+    "15cWrfuvMxyxGst2FisrQcvcpF48x6sXoH" 1 "15Jhzz4omEXEyFKbdcccJwuVPea5LqsKM1"
+```
+
+---
+
 
 ## Data retrieval
 
@@ -695,7 +842,8 @@ Returns a list of token balances for a given currency or property identifier.
   {
     "address" : "address",     // (string) the address
     "balance" : "n.nnnnnnnn",  // (string) the available balance of the address
-    "reserved" : "n.nnnnnnnn"  // (string) the amount reserved by sell offers and accepts
+    "reserved" : "n.nnnnnnnn", // (string) the amount reserved by sell offers and accepts
+    "frozen" : "n.nnnnnnnn"    // (string) the amount frozen by the issuer (applies to managed properties only)
   },
   ...
 ]
@@ -724,8 +872,10 @@ Returns a list of all token balances for a given address.
 [                          // (array of JSON objects)
   {
     "propertyid" : n,          // (number) the property identifier
+    "name" : "name",           // (string) the name of the property
     "balance" : "n.nnnnnnnn",  // (string) the available balance of the address
-    "reserved" : "n.nnnnnnnn"  // (string) the amount reserved by sell offers and accepts
+    "reserved" : "n.nnnnnnnn", // (string) the amount reserved by sell offers and accepts
+    "frozen" : "n.nnnnnnnn"    // (string) the amount frozen by the issuer (applies to managed properties only)
   },
   ...
 ]
@@ -735,6 +885,77 @@ Returns a list of all token balances for a given address.
 
 ```bash
 $ omnicore-cli "omni_getallbalancesforaddress" "1EXoDusjGwvnjZUyKkxZ4UHEf77z6A5S4P"
+```
+
+---
+
+### omni_getwalletbalances
+
+Returns a list of the total token balances of the whole wallet.
+
+**Arguments:**
+
+| Name                | Type    | Presence | Description                                                                                  |
+|---------------------|---------|----------|----------------------------------------------------------------------------------------------|
+| `includewatchonly`  | boolean | optional | include balances of watchonly addresses (default: false)                                     |
+
+**Result:**
+```js
+[                           // (array of JSON objects)
+  {
+    "propertyid" : n,         // (number) the property identifier
+    "name" : "name",            // (string) the name of the token
+    "balance" : "n.nnnnnnnn",   // (string) the total available balance for the token
+    "reserved" : "n.nnnnnnnn"   // (string) the total amount reserved by sell offers and accepts
+    "frozen" : "n.nnnnnnnn"     // (string) the total amount frozen by the issuer (applies to managed properties only)
+  },
+  ...
+]
+```
+
+**Example:**
+
+```bash
+$ omnicore-cli "omni_getwalletbalances"
+```
+
+---
+
+### omni_getwalletaddressbalances
+
+Returns a list of all token balances for every wallet address.
+
+**Arguments:**
+
+| Name                | Type    | Presence | Description                                                                                  |
+|---------------------|---------|----------|----------------------------------------------------------------------------------------------|
+| `includewatchonly`  | boolean | optional | include balances of watchonly addresses (default: false)                                     |
+
+**Result:**
+```js
+[                           // (array of JSON objects)
+  {
+    "address" : "address",      // (string) the address linked to the following balances
+    "balances" :
+    [
+      {
+        "propertyid" : n,         // (number) the property identifier
+        "name" : "name",            // (string) the name of the token
+        "balance" : "n.nnnnnnnn",   // (string) the available balance for the token
+        "reserved" : "n.nnnnnnnn"   // (string) the amount reserved by sell offers and accepts
+        "frozen" : "n.nnnnnnnn"     // (string) the amount frozen by the issuer (applies to managed properties only)
+      },
+      ...
+    ]
+  },
+  ...
+]
+```
+
+**Example:**
+
+```bash
+$ omnicore-cli "omni_getwalletaddressbalances"
 ```
 
 ---
@@ -784,11 +1005,11 @@ List wallet transactions, optionally filtered by an address and block boundaries
 
 | Name                | Type    | Presence | Description                                                                                  |
 |---------------------|---------|----------|----------------------------------------------------------------------------------------------|
-| `txid`              | string  | optional | address filter (default: `"*"`)                                                             |
+| `txid`              | string  | optional | address filter (default: `"*"`)                                                              |
 | `count`             | number  | optional | show at most n transactions (default: `10`)                                                  |
 | `skip`              | number  | optional | skip the first n transactions (default: `0`)                                                 |
 | `startblock`        | number  | optional | first block to begin the search (default: `0`)                                               |
-| `endblock`          | number  | optional | last block to include in the search (default: `999999`)                                      |
+| `endblock`          | number  | optional | last block to include in the search (default: `999999999`)                                   |
 
 **Result:**
 ```js
@@ -1059,7 +1280,8 @@ Returns information about a crowdsale.
   "deadline" : nnnnnnnnnn,             // (number) the deadline of the crowdsale as Unix timestamp
   "amountraised" : "n.nnnnnnnn",       // (string) the amount of tokens invested by participants
   "tokensissued" : "n.nnnnnnnn",       // (string) the total number of tokens issued via the crowdsale
-  "addedissuertokens" : "n.nnnnnnnn",  // (string) the amount of tokens granted to the issuer as bonus
+  "issuerbonustokens" : "n.nnnnnnnn",  // (string) the amount of tokens granted to the issuer as bonus
+  "addedissuertokens" : "n.nnnnnnnn",  // (string) the amount of issuer bonus tokens not yet emitted
   "closedearly" : true|false,          // (boolean) whether the crowdsale ended early (if not active)
   "maxtokens" : true|false,            // (boolean) whether the crowdsale ended early due to reaching the limit of max. issuable tokens (if not active)
   "endedtime" : nnnnnnnnnn,            // (number) the time when the crowdsale ended (if closed early)
@@ -1488,6 +1710,8 @@ $ omnicore-cli "omni_getcurrentconsensushash"
 
 The RPCs for raw transactions/payloads can be used to decode or create raw Omni transactions.
 
+Raw transactions need to be signed with `"signrawtransaction"` and then broadcasted with `"sendrawtransaction"`.
+
 ### omni_decodetransaction
 
 Decodes an Omni transaction.
@@ -1730,6 +1954,8 @@ $ omnicore-cli "omni_createrawtx_change" \
 
 Create the payload for a simple send transaction.
 
+Note: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!
+
 **Arguments:**
 
 | Name                | Type    | Presence | Description                                                                                  |
@@ -1805,6 +2031,8 @@ $ omnicore-cli "omni_createpayload_dexsell" 1 "1.5" "0.75" 25 "0.0005" 1
 
 Create the payload for an accept offer for the specified token and amount.
 
+Note: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!
+
 **Arguments:**
 
 | Name                | Type    | Presence | Description                                                                                  |
@@ -1828,6 +2056,8 @@ $ omnicore-cli "omni_createpayload_dexaccept" 1 "15.0"
 ### omni_createpayload_sto
 
 Creates the payload for a send-to-owners transaction.
+
+Note: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!
 
 **Arguments:**
 
@@ -1973,6 +2203,8 @@ $ omnicore-cli "omni_createpayload_closecrowdsale" 70
 
 Creates the payload to issue or grant new units of managed tokens.
 
+Note: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!
+
 **Arguments:**
 
 | Name                | Type    | Presence | Description                                                                                  |
@@ -1997,6 +2229,8 @@ $ omnicore-cli "omni_createpayload_grant" 51 "7000"
 ### omni_createpayload_revoke
 
 Creates the payload to revoke units of managed tokens.
+
+Note: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!f
 
 **Arguments:**
 
@@ -2046,6 +2280,8 @@ $ omnicore-cli "omni_createpayload_changeissuer" 3
 
 Creates the payload to place a trade offer on the distributed token exchange.
 
+Note: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!
+
 **Arguments:**
 
 | Name                | Type    | Presence | Description                                                                                  |
@@ -2071,6 +2307,8 @@ $ omnicore-cli "omni_createpayload_trade" 31 "250.0" 1 "10.0"
 ### omni_createpayload_canceltradesbyprice
 
 Creates the payload to cancel offers on the distributed token exchange with the specified price.
+
+Note: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!
 
 **Arguments:**
 
@@ -2137,6 +2375,108 @@ Creates the payload to cancel all offers on the distributed token exchange with 
 
 ```bash
 $ omnicore-cli "omni_createpayload_cancelalltrades" 1
+```
+
+---
+
+### omni_createpayload_enablefreezing
+
+Creates the payload to enable address freezing for a centrally managed property.
+
+**Arguments:**
+
+| Name                | Type    | Presence | Description                                                                                  |
+|---------------------|---------|----------|----------------------------------------------------------------------------------------------|
+| `propertyid`        | number  | required | the identifier of the tokens                                                                 |
+
+**Result:**
+```js
+"payload"  // (string) the hex-encoded payload
+```
+
+**Example:**
+
+```bash
+$ omnicore-cli "omni_createpayload_enablefreezing" 3
+```
+
+---
+
+### omni_createpayload_disablefreezing
+
+Creates the payload to disable address freezing for a centrally managed property.
+
+IMPORTANT NOTE:  Disabling freezing for a property will UNFREEZE all frozen addresses for that property!
+
+**Arguments:**
+
+| Name                | Type    | Presence | Description                                                                                  |
+|---------------------|---------|----------|----------------------------------------------------------------------------------------------|
+| `propertyid`        | number  | required | the identifier of the tokens                                                                 |
+
+**Result:**
+```js
+"payload"  // (string) the hex-encoded payload
+```
+
+**Example:**
+
+```bash
+$ omnicore-cli "omni_createpayload_disablefreezing" 3
+```
+
+---
+
+### omni_createpayload_freeze
+
+Creates the payload to freeze an address for a centrally managed token.
+
+Note: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!
+
+**Arguments:**
+
+| Name                | Type    | Presence | Description                                                                                                 |
+|---------------------|---------|----------|-------------------------------------------------------------------------------------------------------------|
+| `toaddress`         | string  | required | the address to freeze tokens for                                                                            |
+| `propertyid`        | number  | required | the property to freeze tokens for (must be managed type and have freezing option enabled)                   |
+| `amount`            | string  | required | the amount of tokens to freeze (note: this is unused - once frozen an address cannot send any transactions) |
+
+**Result:**
+```js
+"payload"  // (string) the hex-encoded payload
+```
+
+**Example:**
+
+```bash
+$ omnicore-cli "omni_createpayload_freeze" "3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs" 31 "100"
+```
+
+---
+
+### omni_createpayload_unfreeze
+
+Creates the payload to unfreeze an address for a centrally managed token.
+
+Note: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!
+
+**Arguments:**
+
+| Name                | Type    | Presence | Description                                                                                                 |
+|---------------------|---------|----------|-------------------------------------------------------------------------------------------------------------|
+| `toaddress`         | string  | required | the address to unfreeze tokens for                                                                          |
+| `propertyid`        | number  | required | the property to unfreeze tokens for (must be managed type and have freezing option enabled)                 |
+| `amount`            | string  | required | the amount of tokens to unfreeze (note: this is unused)                                                     |
+
+**Result:**
+```js
+"payload"  // (string) the hex-encoded payload
+```
+
+**Example:**
+
+```bash
+$ omnicore-cli "omni_createpayload_unfreeze" "3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs" 31 "100"
 ```
 
 ---

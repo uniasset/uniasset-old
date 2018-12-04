@@ -3,13 +3,17 @@
 #include "omnicore/tx.h"
 
 #include "omnicore/activation.h"
-#include "omnicore/convert.h"
+#include "omnicore/dbfees.h"
+#include "omnicore/dbspinfo.h"
+#include "omnicore/dbstolist.h"
+#include "omnicore/dbtradelist.h"
+#include "omnicore/dbtxlist.h"
 #include "omnicore/dex.h"
-#include "omnicore/fees.h"
 #include "omnicore/log.h"
 #include "omnicore/mdex.h"
 #include "omnicore/notifications.h"
 #include "omnicore/omnicore.h"
+#include "omnicore/parsing.h"
 #include "omnicore/rules.h"
 #include "omnicore/sp.h"
 #include "omnicore/sto.h"
@@ -19,7 +23,7 @@
 
 #include "amount.h"
 #include "base58.h"
-#include "main.h"
+#include "validation.h"
 #include "sync.h"
 #include "utiltime.h"
 
@@ -191,9 +195,9 @@ bool CMPTransaction::interpret_TransactionType()
     uint16_t txVersion = 0;
     uint16_t txType = 0;
     memcpy(&txVersion, &pkt[0], 2);
-    swapByteOrder16(txVersion);
+    SwapByteOrder16(txVersion);
     memcpy(&txType, &pkt[2], 2);
-    swapByteOrder16(txType);
+    SwapByteOrder16(txType);
     version = txVersion;
     type = txType;
 
@@ -213,10 +217,15 @@ bool CMPTransaction::interpret_SimpleSend()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
+
+    // Special case: if can't find the receiver -- assume send to self!
+    if (receiver.empty()) {
+        receiver = sender;
+    }
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t        property: %d (%s)\n", property, strMPProperty(property));
@@ -234,13 +243,13 @@ bool CMPTransaction::interpret_SendToOwners()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
     if (version > MP_TX_PKT_V0) {
         memcpy(&distribution_property, &pkt[16], 4);
-        swapByteOrder32(distribution_property);
+        SwapByteOrder32(distribution_property);
     }
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
@@ -264,6 +273,11 @@ bool CMPTransaction::interpret_SendAll()
 
     property = ecosystem; // provide a hint for the UI, TODO: better handling!
 
+    // Special case: if can't find the receiver -- assume send to self!
+    if (receiver.empty()) {
+        receiver = sender;
+    }
+
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t       ecosystem: %d\n", (int)ecosystem);
     }
@@ -279,9 +293,9 @@ bool CMPTransaction::interpret_TradeOffer()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
     memcpy(&amount_desired, &pkt[16], 8);
     memcpy(&blocktimelimit, &pkt[24], 1);
@@ -289,8 +303,8 @@ bool CMPTransaction::interpret_TradeOffer()
     if (version > MP_TX_PKT_V0) {
         memcpy(&subaction, &pkt[33], 1);
     }
-    swapByteOrder64(amount_desired);
-    swapByteOrder64(min_fee);
+    SwapByteOrder64(amount_desired);
+    SwapByteOrder64(min_fee);
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t        property: %d (%s)\n", property, strMPProperty(property));
@@ -313,9 +327,9 @@ bool CMPTransaction::interpret_AcceptOfferBTC()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
@@ -333,14 +347,14 @@ bool CMPTransaction::interpret_MetaDExTrade()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
     memcpy(&desired_property, &pkt[16], 4);
-    swapByteOrder32(desired_property);
+    SwapByteOrder32(desired_property);
     memcpy(&desired_value, &pkt[20], 8);
-    swapByteOrder64(desired_value);
+    SwapByteOrder64(desired_value);
 
     action = CMPTransaction::ADD; // depreciated
 
@@ -361,14 +375,14 @@ bool CMPTransaction::interpret_MetaDExCancelPrice()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
     memcpy(&desired_property, &pkt[16], 4);
-    swapByteOrder32(desired_property);
+    SwapByteOrder32(desired_property);
     memcpy(&desired_value, &pkt[20], 8);
-    swapByteOrder64(desired_value);
+    SwapByteOrder64(desired_value);
 
     action = CMPTransaction::CANCEL_AT_PRICE; // depreciated
 
@@ -389,9 +403,9 @@ bool CMPTransaction::interpret_MetaDExCancelPair()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&desired_property, &pkt[8], 4);
-    swapByteOrder32(desired_property);
+    SwapByteOrder32(desired_property);
 
     nValue = 0; // depreciated
     nNewValue = nValue; // depreciated
@@ -438,9 +452,9 @@ bool CMPTransaction::interpret_CreatePropertyFixed()
     std::vector<std::string> spstr;
     memcpy(&ecosystem, &pkt[4], 1);
     memcpy(&prop_type, &pkt[5], 2);
-    swapByteOrder16(prop_type);
+    SwapByteOrder16(prop_type);
     memcpy(&prev_prop_id, &pkt[7], 4);
-    swapByteOrder32(prev_prop_id);
+    SwapByteOrder32(prev_prop_id);
     for (int i = 0; i < 5; i++) {
         spstr.push_back(std::string(p));
         p += spstr.back().size() + 1;
@@ -452,7 +466,7 @@ bool CMPTransaction::interpret_CreatePropertyFixed()
     memcpy(url, spstr[i].c_str(), std::min(spstr[i].length(), sizeof(url)-1)); i++;
     memcpy(data, spstr[i].c_str(), std::min(spstr[i].length(), sizeof(data)-1)); i++;
     memcpy(&nValue, p, 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     p += 8;
     nNewValue = nValue;
 
@@ -486,9 +500,9 @@ bool CMPTransaction::interpret_CreatePropertyVariable()
     std::vector<std::string> spstr;
     memcpy(&ecosystem, &pkt[4], 1);
     memcpy(&prop_type, &pkt[5], 2);
-    swapByteOrder16(prop_type);
+    SwapByteOrder16(prop_type);
     memcpy(&prev_prop_id, &pkt[7], 4);
-    swapByteOrder32(prev_prop_id);
+    SwapByteOrder32(prev_prop_id);
     for (int i = 0; i < 5; i++) {
         spstr.push_back(std::string(p));
         p += spstr.back().size() + 1;
@@ -500,14 +514,14 @@ bool CMPTransaction::interpret_CreatePropertyVariable()
     memcpy(url, spstr[i].c_str(), std::min(spstr[i].length(), sizeof(url)-1)); i++;
     memcpy(data, spstr[i].c_str(), std::min(spstr[i].length(), sizeof(data)-1)); i++;
     memcpy(&property, p, 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     p += 4;
     memcpy(&nValue, p, 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     p += 8;
     nNewValue = nValue;
     memcpy(&deadline, p, 8);
-    swapByteOrder64(deadline);
+    SwapByteOrder64(deadline);
     p += 8;
     memcpy(&early_bird, p++, 1);
     memcpy(&percentage, p++, 1);
@@ -543,7 +557,7 @@ bool CMPTransaction::interpret_CloseCrowdsale()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t        property: %d (%s)\n", property, strMPProperty(property));
@@ -562,9 +576,9 @@ bool CMPTransaction::interpret_CreatePropertyManaged()
     std::vector<std::string> spstr;
     memcpy(&ecosystem, &pkt[4], 1);
     memcpy(&prop_type, &pkt[5], 2);
-    swapByteOrder16(prop_type);
+    SwapByteOrder16(prop_type);
     memcpy(&prev_prop_id, &pkt[7], 4);
-    swapByteOrder32(prev_prop_id);
+    SwapByteOrder32(prev_prop_id);
     for (int i = 0; i < 5; i++) {
         spstr.push_back(std::string(p));
         p += spstr.back().size() + 1;
@@ -602,10 +616,15 @@ bool CMPTransaction::interpret_GrantTokens()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
+
+    // Special case: if can't find the receiver -- assume grant to self!
+    if (receiver.empty()) {
+        receiver = sender;
+    }
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t        property: %d (%s)\n", property, strMPProperty(property));
@@ -622,9 +641,9 @@ bool CMPTransaction::interpret_RevokeTokens()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
@@ -642,7 +661,7 @@ bool CMPTransaction::interpret_ChangeIssuer()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t        property: %d (%s)\n", property, strMPProperty(property));
@@ -658,7 +677,7 @@ bool CMPTransaction::interpret_EnableFreezing()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t        property: %d (%s)\n", property, strMPProperty(property));
@@ -674,7 +693,7 @@ bool CMPTransaction::interpret_DisableFreezing()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t        property: %d (%s)\n", property, strMPProperty(property));
@@ -690,9 +709,9 @@ bool CMPTransaction::interpret_FreezeTokens()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
 
     /**
@@ -729,9 +748,9 @@ bool CMPTransaction::interpret_UnfreezeTokens()
         return false;
     }
     memcpy(&property, &pkt[4], 4);
-    swapByteOrder32(property);
+    SwapByteOrder32(property);
     memcpy(&nValue, &pkt[8], 8);
-    swapByteOrder64(nValue);
+    SwapByteOrder64(nValue);
     nNewValue = nValue;
 
     /**
@@ -768,7 +787,7 @@ bool CMPTransaction::interpret_Deactivation()
         return false;
     }
     memcpy(&feature_id, &pkt[4], 2);
-    swapByteOrder16(feature_id);
+    SwapByteOrder16(feature_id);
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t      feature id: %d\n", feature_id);
@@ -784,11 +803,11 @@ bool CMPTransaction::interpret_Activation()
         return false;
     }
     memcpy(&feature_id, &pkt[4], 2);
-    swapByteOrder16(feature_id);
+    SwapByteOrder16(feature_id);
     memcpy(&activation_block, &pkt[6], 4);
-    swapByteOrder32(activation_block);
+    SwapByteOrder32(activation_block);
     memcpy(&min_client_version, &pkt[10], 4);
-    swapByteOrder32(min_client_version);
+    SwapByteOrder32(min_client_version);
 
     if ((!rpcOnly && msc_debug_packets) || msc_debug_packets_readonly) {
         PrintToLog("\t      feature id: %d\n", feature_id);
@@ -807,9 +826,9 @@ bool CMPTransaction::interpret_Alert()
     }
 
     memcpy(&alert_type, &pkt[4], 2);
-    swapByteOrder16(alert_type);
+    SwapByteOrder16(alert_type);
     memcpy(&alert_expiry, &pkt[6], 4);
-    swapByteOrder32(alert_expiry);
+    SwapByteOrder32(alert_expiry);
 
     const char* p = 10 + (char*) &pkt;
     std::string spstr(p);
@@ -1031,7 +1050,7 @@ int CMPTransaction::logicMath_SimpleSend()
         return (PKT_ERROR_SEND -24);
     }
 
-    int64_t nBalance = getMPbalance(sender, property, BALANCE);
+    int64_t nBalance = GetTokenBalance(sender, property, BALANCE);
     if (nBalance < (int64_t) nValue) {
         PrintToLog("%s(): rejected: sender %s has insufficient balance of property %d [%s < %s]\n",
                 __func__,
@@ -1043,11 +1062,6 @@ int CMPTransaction::logicMath_SimpleSend()
     }
 
     // ------------------------------------------
-
-    // Special case: if can't find the receiver -- assume send to self!
-    if (receiver.empty()) {
-        receiver = sender;
-    }
 
     // Move the tokens
     assert(update_tally_map(sender, property, -nValue, BALANCE));
@@ -1089,7 +1103,7 @@ int CMPTransaction::logicMath_SendToOwners()
         }
     }
 
-    int64_t nBalance = getMPbalance(sender, property, BALANCE);
+    int64_t nBalance = GetTokenBalance(sender, property, BALANCE);
     if (nBalance < (int64_t) nValue) {
         PrintToLog("%s(): rejected: sender %s has insufficient balance of property %d [%s < %s]\n",
                 __func__,
@@ -1120,7 +1134,7 @@ int CMPTransaction::logicMath_SendToOwners()
 
     // enough coins to pay the fee?
     if (feeProperty != property) {
-        int64_t nBalanceFee = getMPbalance(sender, feeProperty, BALANCE);
+        int64_t nBalanceFee = GetTokenBalance(sender, feeProperty, BALANCE);
         if (nBalanceFee < transferFee) {
             PrintToLog("%s(): rejected: sender %s has insufficient balance of property %d to pay for fee [%s < %s]\n",
                     __func__,
@@ -1132,7 +1146,7 @@ int CMPTransaction::logicMath_SendToOwners()
         }
     } else {
         // special case check, only if distributing MSC or TMSC -- the property the fee will be paid in
-        int64_t nBalanceFee = getMPbalance(sender, feeProperty, BALANCE);
+        int64_t nBalanceFee = GetTokenBalance(sender, feeProperty, BALANCE);
         if (nBalanceFee < ((int64_t) nValue + transferFee)) {
             PrintToLog("%s(): rejected: sender %s has insufficient balance of %d to pay for amount + fee [%s < %s + %s]\n",
                     __func__,
@@ -1200,11 +1214,6 @@ int CMPTransaction::logicMath_SendAll()
     }
 
     // ------------------------------------------
-
-    // Special case: if can't find the receiver -- assume send to self!
-    if (receiver.empty()) {
-        receiver = sender;
-    }
 
     CMPTally* ptally = getTally(sender);
     if (ptally == NULL) {
@@ -1429,7 +1438,7 @@ int CMPTransaction::logicMath_MetaDExTrade()
         }
     }
 
-    int64_t nBalance = getMPbalance(sender, property, BALANCE);
+    int64_t nBalance = GetTokenBalance(sender, property, BALANCE);
     if (nBalance < (int64_t) nNewValue) {
         PrintToLog("%s(): rejected: sender %s has insufficient balance of property %d [%s < %s]\n",
                 __func__,
@@ -1945,11 +1954,6 @@ int CMPTransaction::logicMath_GrantTokens()
     // Persist the number of granted tokens
     assert(_my_sps->updateSP(property, sp));
 
-    // Special case: if can't find the receiver -- assume grant to self!
-    if (receiver.empty()) {
-        receiver = sender;
-    }
-
     // Move the tokens
     assert(update_tally_map(receiver, property, nValue, BALANCE));
 
@@ -2010,7 +2014,7 @@ int CMPTransaction::logicMath_RevokeTokens()
         return (PKT_ERROR_TOKENS -42);
     }
 
-    int64_t nBalance = getMPbalance(sender, property, BALANCE);
+    int64_t nBalance = GetTokenBalance(sender, property, BALANCE);
     if (nBalance < (int64_t) nValue) {
         PrintToLog("%s(): rejected: sender %s has insufficient balance of property %d [%s < %s]\n",
                 __func__,
@@ -2457,4 +2461,3 @@ int CMPTransaction::logicMath_Alert()
 
     return 0;
 }
-

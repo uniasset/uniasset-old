@@ -175,7 +175,7 @@
     </message>
     <message>
         <source>Send coins to a UFO address</source>
-        <translation>Slanje novca na UFO adresu</translation>
+        <translation>Slanje novca na ufo adresu</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -227,11 +227,11 @@
     </message>
     <message>
         <source>Sign messages with your UFO addresses to prove you own them</source>
-        <translation>Poruku potpišemo s UFO adresom, kako bi dokazali vlasništvo nad tom adresom</translation>
+        <translation>Poruku potpišemo s ufo adresom, kako bi dokazali vlasništvo nad tom adresom</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified UFO addresses</source>
-        <translation>Provjeravanje poruke, kao dokaz, da je potpisana navedenom UFO adresom</translation>
+        <translation>Provjeravanje poruke, kao dokaz, da je potpisana navedenom ufo adresom</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -250,8 +250,8 @@
         <translation>Traka kartica</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and uniasset: URIs)</source>
-        <translation>Zatraži uplatu (stvara QR kod i uniasset: URI adresu)</translation>
+        <source>Request payments (generates QR codes and ufo: URIs)</source>
+        <translation>Zatraži uplatu (stvara QR kod i ufo: URI adresu)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -262,8 +262,8 @@
         <translation>Prikaži popis korištenih adresa i oznaka za primanje novca</translation>
     </message>
     <message>
-        <source>Open a uniasset: URI or payment request</source>
-        <translation>Otvori uniasset: URI adresu ili zahtjev za uplatu</translation>
+        <source>Open a ufo: URI or payment request</source>
+        <translation>Otvori ufo: URI adresu ili zahtjev za uplatu</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -276,26 +276,6 @@
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation><numerusform>Obrađen %n blok povijesti transakcije.</numerusform><numerusform>Obrađeno %n bloka povijesti transakcije.</numerusform><numerusform>Obrađeno %n blokova povijesti transakcije.</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation><numerusform>%n sat</numerusform><numerusform>%n sata</numerusform><numerusform>%n sati</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation><numerusform>%n dan</numerusform><numerusform>%n dana</numerusform><numerusform>%n dana</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation><numerusform>%n tjedan</numerusform><numerusform>%n tjedna</numerusform><numerusform>%n tjedana</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 and %2</source>
-        <translation>%1 i %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation><numerusform>%n godina</numerusform><numerusform>%n godine</numerusform><numerusform>%n godina</numerusform></translation>
     </message>
     <message>
         <source>Last received block was generated %1 ago.</source>
@@ -371,7 +351,7 @@
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>Novčanik je &lt;b&gt;šifriran&lt;/b&gt; i trenutno &lt;b&gt;zaključan&lt;/b&gt;</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>CoinControlDialog</name>
     <message>
@@ -389,10 +369,6 @@
     <message>
         <source>Amount:</source>
         <translation>Iznos:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioriteta:</translation>
     </message>
     <message>
         <source>Fee:</source>
@@ -434,10 +410,6 @@
         <source>Confirmed</source>
         <translation>Potvrđeno</translation>
     </message>
-    <message>
-        <source>Priority</source>
-        <translation>Prioriteta</translation>
-    </message>
     </context>
 <context>
     <name>EditAddressDialog</name>
@@ -451,7 +423,7 @@
     </message>
     <message>
         <source>The label associated with this address list entry</source>
-        <translation>Oznaka UFO adrese</translation>
+        <translation>Oznaka ufo adrese</translation>
     </message>
     <message>
         <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
@@ -509,6 +481,17 @@
     <message>
         <source>Error</source>
         <translation>Greška</translation>
+    </message>
+    </context>
+<context>
+    <name>ModalOverlay</name>
+    <message>
+        <source>Form</source>
+        <translation>Oblik</translation>
+    </message>
+    <message>
+        <source>Last block time</source>
+        <translation>Posljednje vrijeme bloka</translation>
     </message>
     </context>
 <context>
@@ -634,7 +617,7 @@
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>Izaberite željeni najmanji dio UFOa koji će biti prikazan u sučelju i koji će se koristiti za plaćanje.</translation>
+        <translation>Izaberite željeni najmanji dio ufoa koji će biti prikazan u sučelju i koji će se koristiti za plaćanje.</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -684,6 +667,16 @@
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 i %2</translation>
+    </message>
+    </context>
+<context>
+    <name>QObject::QObject</name>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>QRImageWidget</name>
@@ -849,10 +842,6 @@
     <message>
         <source>Amount:</source>
         <translation>Iznos:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioriteta:</translation>
     </message>
     <message>
         <source>Fee:</source>
@@ -1054,10 +1043,6 @@
     <message>
         <source>Block creation options:</source>
         <translation>Opcije za kreiranje bloka:</translation>
-    </message>
-    <message>
-        <source>Connect only to the specified node(s)</source>
-        <translation>Poveži se samo sa određenim čvorom/čvorovima</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>

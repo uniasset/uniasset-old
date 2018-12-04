@@ -27,9 +27,9 @@ using mastercore::cs_tx_cache;
 using mastercore::view;
 
 
-UniValue omni_decodetransaction(const UniValue& params, bool fHelp)
+UniValue omni_decodetransaction(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 1 || params.size() > 3)
+    if (rq.fHelp || rq.params.size() < 1 || rq.params.size() > 3)
         throw std::runtime_error(
             "omni_decodetransaction \"rawtx\" ( \"prevtxs\" height )\n"
 
@@ -72,20 +72,21 @@ UniValue omni_decodetransaction(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_decodetransaction", "\"010000000163af14ce6d477e1c793507e32a5b7696288fa89705c0d02a3f66beb3c5b8afee0100000000ffffffff02ac020000000000004751210261ea979f6a06f9dafe00fb1263ea0aca959875a7073556a088cdfadcd494b3752102a3fd0a8a067e06941e066f78d930bfc47746f097fcd3f7ab27db8ddf37168b6b52ae22020000000000001976a914946cb2e08075bcbaf157e47bcb67eb2b2339d24288ac00000000\", [{\"txid\":\"eeafb8c5b3be663f2ad0c00597a88f2896765b2ae30735791c7e476dce14af63\",\"vout\":1,\"scriptPubKey\":\"76a9149084c0bd89289bc025d0264f7f23148fb683d56c88ac\",\"value\":0.0001123}]")
         );
 
-    CTransaction tx = ParseTransaction(params[0]);
+    // 
+    CTransactionRef tx = MakeTransactionRef(  ParseTransaction(rq.params[0]) );
 
     // use a dummy coins view to store the user provided transaction inputs
     CCoinsView viewDummyTemp;
     CCoinsViewCache viewTemp(&viewDummyTemp);
 
-    if (params.size() > 1) {
-        std::vector<PrevTxsEntry> prevTxsParsed = ParsePrevTxs(params[1]);
+    if (rq.params.size() > 1) {
+        std::vector<PrevTxsEntry> prevTxsParsed = ParsePrevTxs(rq.params[1]);
         InputsToView(prevTxsParsed, viewTemp);
     }
 
     int blockHeight = 0;
-    if (params.size() > 2) {
-        blockHeight = params[2].get_int();
+    if (rq.params.size() > 2) {
+        blockHeight = rq.params[2].get_int();
     }
 
     UniValue txObj(UniValue::VOBJ);
@@ -105,9 +106,9 @@ UniValue omni_decodetransaction(const UniValue& params, bool fHelp)
     return txObj;
 }
 
-UniValue omni_createrawtx_opreturn(const UniValue& params, bool fHelp)
+UniValue omni_createrawtx_opreturn(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 2)
+    if (rq.fHelp || rq.params.size() != 2)
         throw std::runtime_error(
             "omni_createrawtx_opreturn \"rawtx\" \"payload\"\n"
 
@@ -129,8 +130,8 @@ UniValue omni_createrawtx_opreturn(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createrawtx_opreturn", "\"01000000000000000000\", \"00000000000000020000000006dac2c0\"")
         );
 
-    CMutableTransaction tx = ParseMutableTransaction(params[0]);
-    std::vector<unsigned char> payload = ParseHexV(params[1], "payload");
+    CMutableTransaction tx = ParseMutableTransaction(rq.params[0]);
+    std::vector<unsigned char> payload = ParseHexV(rq.params[1], "payload");
 
     // extend the transaction
     tx = OmniTxBuilder(tx)
@@ -140,9 +141,9 @@ UniValue omni_createrawtx_opreturn(const UniValue& params, bool fHelp)
     return EncodeHexTx(tx);
 }
 
-UniValue omni_createrawtx_multisig(const UniValue& params, bool fHelp)
+UniValue omni_createrawtx_multisig(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 4)
+    if (rq.fHelp || rq.params.size() != 4)
         throw std::runtime_error(
             "omni_createrawtx_multisig \"rawtx\" \"payload\" \"seed\" \"redeemkey\"\n"
 
@@ -166,10 +167,10 @@ UniValue omni_createrawtx_multisig(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createrawtx_multisig", "\"0100000001a7a9402ecd77f3c9f745793c9ec805bfa2e14b89877581c734c774864247e6f50400000000ffffffff01aa0a0000000000001976a9146d18edfe073d53f84dd491dae1379f8fb0dfe5d488ac00000000\", \"00000000000000020000000000989680\", \"1LifmeXYHeUe2qdKWBGVwfbUCMMrwYtoMm\", \"0252ce4bdd3ce38b4ebbc5a6e1343608230da508ff12d23d85b58c964204c4cef3\"")
         );
 
-    CMutableTransaction tx = ParseMutableTransaction(params[0]);
-    std::vector<unsigned char> payload = ParseHexV(params[1], "payload");
-    std::string obfuscationSeed = ParseAddressOrEmpty(params[2]);
-    CPubKey redeemKey = ParsePubKeyOrAddress(params[3]);
+    CMutableTransaction tx = ParseMutableTransaction(rq.params[0]);
+    std::vector<unsigned char> payload = ParseHexV(rq.params[1], "payload");
+    std::string obfuscationSeed = ParseAddressOrEmpty(rq.params[2]);
+    CPubKey redeemKey = ParsePubKeyOrAddress(rq.params[3]);
 
     // extend the transaction
     tx = OmniTxBuilder(tx)
@@ -179,9 +180,9 @@ UniValue omni_createrawtx_multisig(const UniValue& params, bool fHelp)
     return EncodeHexTx(tx);
 }
 
-UniValue omni_createrawtx_input(const UniValue& params, bool fHelp)
+UniValue omni_createrawtx_input(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 3)
+    if (rq.fHelp || rq.params.size() != 3)
         throw std::runtime_error(
             "omni_createrawtx_input \"rawtx\" \"txid\" n\n"
 
@@ -202,9 +203,9 @@ UniValue omni_createrawtx_input(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createrawtx_input", "\"01000000000000000000\", \"b006729017df05eda586df9ad3f8ccfee5be340aadf88155b784d1fc0e8342ee\", 0")
         );
 
-    CMutableTransaction tx = ParseMutableTransaction(params[0]);
-    uint256 txid = ParseHashV(params[1], "txid");
-    uint32_t nOut = ParseOutputIndex(params[2]);
+    CMutableTransaction tx = ParseMutableTransaction(rq.params[0]);
+    uint256 txid = ParseHashV(rq.params[1], "txid");
+    uint32_t nOut = ParseOutputIndex(rq.params[2]);
 
     // extend the transaction
     tx = OmniTxBuilder(tx)
@@ -214,9 +215,9 @@ UniValue omni_createrawtx_input(const UniValue& params, bool fHelp)
     return EncodeHexTx(tx);
 }
 
-UniValue omni_createrawtx_reference(const UniValue& params, bool fHelp)
+UniValue omni_createrawtx_reference(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 2 || params.size() > 3)
+    if (rq.fHelp || rq.params.size() < 2 || rq.params.size() > 3)
         throw std::runtime_error(
             "omni_createrawtx_reference \"rawtx\" \"destination\" ( amount )\n"
 
@@ -239,9 +240,9 @@ UniValue omni_createrawtx_reference(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createrawtx_reference", "\"0100000001a7a9402ecd77f3c9f745793c9ec805bfa2e14b89877581c734c774864247e6f50400000000ffffffff03aa0a0000000000001976a9146d18edfe073d53f84dd491dae1379f8fb0dfe5d488ac5c0d0000000000004751210252ce4bdd3ce38b4ebbc5a6e1343608230da508ff12d23d85b58c964204c4cef3210294cc195fc096f87d0f813a337ae7e5f961b1c8a18f1f8604a909b3a5121f065b52aeaa0a0000000000001976a914946cb2e08075bcbaf157e47bcb67eb2b2339d24288ac00000000\", \"1CE8bBr1dYZRMnpmyYsFEoexa1YoPz2mfB\", 0.005")
         );
 
-    CMutableTransaction tx = ParseMutableTransaction(params[0]);
-    std::string destination = ParseAddress(params[1]);
-    int64_t amount = (params.size() > 2) ? AmountFromValue(params[2]) : 0;
+    CMutableTransaction tx = ParseMutableTransaction(rq.params[0]);
+    std::string destination = ParseAddress(rq.params[1]);
+    int64_t amount = (rq.params.size() > 2) ? AmountFromValue(rq.params[2]) : 0;
 
     // extend the transaction
     tx = OmniTxBuilder(tx)
@@ -251,9 +252,9 @@ UniValue omni_createrawtx_reference(const UniValue& params, bool fHelp)
     return EncodeHexTx(tx);
 }
 
-UniValue omni_createrawtx_change(const UniValue& params, bool fHelp)
+UniValue omni_createrawtx_change(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 4 || params.size() > 5)
+    if (rq.fHelp || rq.params.size() < 4 || rq.params.size() > 5)
         throw std::runtime_error(
             "omni_createrawtx_change \"rawtx\" \"prevtxs\" \"destination\" fee ( position )\n"
 
@@ -295,11 +296,11 @@ UniValue omni_createrawtx_change(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createrawtx_change", "\"0100000001b15ee60431ef57ec682790dec5a3c0d83a0c360633ea8308fbf6d5fc10a779670400000000ffffffff025c0d00000000000047512102f3e471222bb57a7d416c82bf81c627bfcd2bdc47f36e763ae69935bba4601ece21021580b888ff56feb27f17f08802ebed26258c23697d6a462d43fc13b565fda2dd52aeaa0a0000000000001976a914946cb2e08075bcbaf157e47bcb67eb2b2339d24288ac00000000\", [{\"txid\":\"6779a710fcd5f6fb0883ea3306360c3ad8c0a3c5de902768ec57ef3104e65eb1\",\"vout\":4,\"scriptPubKey\":\"76a9147b25205fd98d462880a3e5b0541235831ae959e588ac\",\"value\":0.00068257}], \"1CE8bBr1dYZRMnpmyYsFEoexa1YoPz2mfB\", 0.00003500, 1")
         );
 
-    CMutableTransaction tx = ParseMutableTransaction(params[0]);
-    std::vector<PrevTxsEntry> prevTxsParsed = ParsePrevTxs(params[1]);
-    std::string destination = ParseAddress(params[2]);
-    int64_t txFee = AmountFromValue(params[3]);
-    uint32_t nOut = params.size() > 4 ? params[4].get_int64() : 0;
+    CMutableTransaction tx = ParseMutableTransaction(rq.params[0]);
+    std::vector<PrevTxsEntry> prevTxsParsed = ParsePrevTxs(rq.params[1]);
+    std::string destination = ParseAddress(rq.params[2]);
+    int64_t txFee = AmountFromValue(rq.params[3]);
+    uint32_t nOut = rq.params.size() > 4 ? rq.params[4].get_int64() : 0;
 
     // use a dummy coins view to store the user provided transaction inputs
     CCoinsView viewDummy;

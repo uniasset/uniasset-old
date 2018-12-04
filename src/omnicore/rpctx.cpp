@@ -15,9 +15,10 @@
 #include "omnicore/rpcvalues.h"
 #include "omnicore/sp.h"
 #include "omnicore/tx.h"
+#include "omnicore/wallettxbuilder.h"
 
 #include "init.h"
-#include "main.h"
+#include "validation.h"
 #include "rpc/server.h"
 #include "sync.h"
 #ifdef ENABLE_WALLET
@@ -33,9 +34,102 @@
 using std::runtime_error;
 using namespace mastercore;
 
-UniValue omni_sendrawtx(const UniValue& params, bool fHelp)
+
+UniValue omni_funded_send(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 2 || params.size() > 5)
+    if (rq.fHelp || rq.params.size() != 5)
+        throw runtime_error(
+            "omni_funded_send \"fromaddress\" \"toaddress\" propertyid \"amount\" \"feeaddress\"\n"
+
+            "\nCreates and sends a funded simple send transaction.\n"
+
+            "\nAll coins from the sender are consumed and if there are coins missing, they are taken from the specified fee source. Change is sent to the fee source!\n"
+
+            "\nArguments:\n"
+            "1. fromaddress          (string, required) the address to send from\n"
+            "2. toaddress            (string, required) the address of the receiver\n"
+            "3. propertyid           (number, required) the identifier of the tokens to send\n"
+            "4. amount               (string, required) the amount to send\n"
+            "5. feeaddress           (string, required) the address that is used to pay for fees, if needed\n"
+
+            "\nResult:\n"
+            "\"hash\"                  (string) the hex-encoded transaction hash\n"
+
+            "\nExamples:\n"
+            + HelpExampleCli("omni_funded_send", "\"1DFa5bT6KMEr6ta29QJouainsjaNBsJQhH\" \"15cWrfuvMxyxGst2FisrQcvcpF48x6sXoH\" 1 \"100.0\" \"15Jhzz4omEXEyFKbdcccJwuVPea5LqsKM1\"")
+            + HelpExampleRpc("omni_funded_send", "\"1DFa5bT6KMEr6ta29QJouainsjaNBsJQhH\", \"15cWrfuvMxyxGst2FisrQcvcpF48x6sXoH\", 1, \"100.0\", \"15Jhzz4omEXEyFKbdcccJwuVPea5LqsKM1\"")
+        );
+
+    // obtain parameters & info
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::string toAddress = ParseAddress(rq.params[1]);
+    uint32_t propertyId = ParsePropertyId(rq.params[2]);
+    int64_t amount = ParseAmount(rq.params[3], isPropertyDivisible(propertyId));
+    std::string feeAddress = ParseAddress(rq.params[4]);
+
+    // perform checks
+    RequireExistingProperty(propertyId);
+    RequireBalance(fromAddress, propertyId, amount);
+
+    // create a payload for the transaction
+    std::vector<unsigned char> payload = CreatePayload_SimpleSend(propertyId, amount);
+
+    // create the raw transaction
+    uint256 retTxid;
+    int result = CreateFundedTransaction(fromAddress, toAddress, feeAddress, payload, retTxid);
+    if (result != 0) {
+        throw JSONRPCError(result, error_str(result));
+    }
+
+    return retTxid.ToString();
+}
+
+UniValue omni_funded_sendall(const JSONRPCRequest& rq)
+{
+    if (rq.fHelp || rq.params.size() != 4)
+        throw runtime_error(
+            "omni_funded_sendall \"fromaddress\" \"toaddress\" ecosystem \"feeaddress\"\n"
+
+            "\nCreates and sends a transaction that transfers all available tokens in the given ecosystem to the recipient.\n"
+
+            "\nAll coins from the sender are consumed and if there are coins missing, they are taken from the specified fee source. Change is sent to the fee source!\n"
+
+            "\nArguments:\n"
+            "1. fromaddress          (string, required) the address to send from\n"
+            "2. toaddress            (string, required) the address of the receiver\n"
+            "3. ecosystem            (number, required) the ecosystem of the tokens to send (1 for main ecosystem, 2 for test ecosystem)\n"
+            "4. feeaddress           (string, required) the address that is used to pay for fees, if needed\n"
+
+            "\nResult:\n"
+            "\"hash\"                  (string) the hex-encoded transaction hash\n"
+
+            "\nExamples:\n"
+            + HelpExampleCli("omni_funded_sendall", "\"1DFa5bT6KMEr6ta29QJouainsjaNBsJQhH\" \"15cWrfuvMxyxGst2FisrQcvcpF48x6sXoH\" 1 \"15Jhzz4omEXEyFKbdcccJwuVPea5LqsKM1\"")
+            + HelpExampleRpc("omni_funded_sendall", "\"1DFa5bT6KMEr6ta29QJouainsjaNBsJQhH\", \"15cWrfuvMxyxGst2FisrQcvcpF48x6sXoH\", 1, \"15Jhzz4omEXEyFKbdcccJwuVPea5LqsKM1\"")
+        );
+
+    // obtain parameters & info
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::string toAddress = ParseAddress(rq.params[1]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[2]);
+    std::string feeAddress = ParseAddress(rq.params[3]);
+
+    // create a payload for the transaction
+    std::vector<unsigned char> payload = CreatePayload_SendAll(ecosystem);
+
+    // create the raw transaction
+    uint256 retTxid;
+    int result = CreateFundedTransaction(fromAddress, toAddress, feeAddress, payload, retTxid);
+    if (result != 0) {
+        throw JSONRPCError(result, error_str(result));
+    }
+
+    return retTxid.ToString();
+}
+
+UniValue omni_sendrawtx(const JSONRPCRequest& rq)
+{
+    if (rq.fHelp || rq.params.size() < 2 || rq.params.size() > 5)
         throw runtime_error(
             "omni_sendrawtx \"fromaddress\" \"rawtransaction\" ( \"referenceaddress\" \"redeemaddress\" \"referenceamount\" )\n"
             "\nBroadcasts a raw Omni Layer transaction.\n"
@@ -52,11 +146,11 @@ UniValue omni_sendrawtx(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_sendrawtx", "\"1MCHESTptvd2LnNp7wmr2sGTpRomteAkq8\", \"000000000000000100000000017d7840\", \"1EqTta1Rt8ixAA32DuC29oukbsSWU62qAV\"")
         );
 
-    std::string fromAddress = ParseAddress(params[0]);
-    std::vector<unsigned char> data = ParseHexV(params[1], "raw transaction");
-    std::string toAddress = (params.size() > 2) ? ParseAddressOrEmpty(params[2]): "";
-    std::string redeemAddress = (params.size() > 3) ? ParseAddressOrEmpty(params[3]): "";
-    int64_t referenceAmount = (params.size() > 4) ? ParseAmount(params[4], true): 0;
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::vector<unsigned char> data = ParseHexV(rq.params[1], "raw transaction");
+    std::string toAddress = (rq.params.size() > 2) ? ParseAddressOrEmpty(rq.params[2]): "";
+    std::string redeemAddress = (rq.params.size() > 3) ? ParseAddressOrEmpty(rq.params[3]): "";
+    int64_t referenceAmount = (rq.params.size() > 4) ? ParseAmount(rq.params[4], true): 0;
 
     //some sanity checking of the data supplied?
     uint256 newTX;
@@ -75,9 +169,9 @@ UniValue omni_sendrawtx(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_send(const UniValue& params, bool fHelp)
+UniValue omni_send(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 4 || params.size() > 6)
+    if (rq.fHelp || rq.params.size() < 4 || rq.params.size() > 6)
         throw runtime_error(
             "omni_send \"fromaddress\" \"toaddress\" propertyid \"amount\" ( \"redeemaddress\" \"referenceamount\" )\n"
 
@@ -100,12 +194,12 @@ UniValue omni_send(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    std::string toAddress = ParseAddress(params[1]);
-    uint32_t propertyId = ParsePropertyId(params[2]);
-    int64_t amount = ParseAmount(params[3], isPropertyDivisible(propertyId));
-    std::string redeemAddress = (params.size() > 4 && !ParseText(params[4]).empty()) ? ParseAddress(params[4]): "";
-    int64_t referenceAmount = (params.size() > 5) ? ParseAmount(params[5], true): 0;
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::string toAddress = ParseAddress(rq.params[1]);
+    uint32_t propertyId = ParsePropertyId(rq.params[2]);
+    int64_t amount = ParseAmount(rq.params[3], isPropertyDivisible(propertyId));
+    std::string redeemAddress = (rq.params.size() > 4 && !ParseText(rq.params[4]).empty()) ? ParseAddress(rq.params[4]): "";
+    int64_t referenceAmount = (rq.params.size() > 5) ? ParseAmount(rq.params[5], true): 0;
 
     // perform checks
     RequireExistingProperty(propertyId);
@@ -133,9 +227,9 @@ UniValue omni_send(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendall(const UniValue& params, bool fHelp)
+UniValue omni_sendall(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 3 || params.size() > 5)
+    if (rq.fHelp || rq.params.size() < 3 || rq.params.size() > 5)
         throw runtime_error(
             "omni_sendall \"fromaddress\" \"toaddress\" ecosystem ( \"redeemaddress\" \"referenceamount\" )\n"
 
@@ -157,11 +251,11 @@ UniValue omni_sendall(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    std::string toAddress = ParseAddress(params[1]);
-    uint8_t ecosystem = ParseEcosystem(params[2]);
-    std::string redeemAddress = (params.size() > 3 && !ParseText(params[3]).empty()) ? ParseAddress(params[3]): "";
-    int64_t referenceAmount = (params.size() > 4) ? ParseAmount(params[4], true): 0;
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::string toAddress = ParseAddress(rq.params[1]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[2]);
+    std::string redeemAddress = (rq.params.size() > 3 && !ParseText(rq.params[3]).empty()) ? ParseAddress(rq.params[3]): "";
+    int64_t referenceAmount = (rq.params.size() > 4) ? ParseAmount(rq.params[4], true): 0;
 
     // perform checks
     RequireSaneReferenceAmount(referenceAmount);
@@ -187,9 +281,9 @@ UniValue omni_sendall(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_senddexsell(const UniValue& params, bool fHelp)
+UniValue omni_senddexsell(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 7)
+    if (rq.fHelp || rq.params.size() != 7)
         throw runtime_error(
             "omni_senddexsell \"fromaddress\" propertyidforsale \"amountforsale\" \"amountdesired\" paymentwindow minacceptfee action\n"
 
@@ -214,20 +308,20 @@ UniValue omni_senddexsell(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint32_t propertyIdForSale = ParsePropertyId(params[1]);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyIdForSale = ParsePropertyId(rq.params[1]);
     int64_t amountForSale = 0; // depending on action
     int64_t amountDesired = 0; // depending on action
     uint8_t paymentWindow = 0; // depending on action
     int64_t minAcceptFee = 0;  // depending on action
-    uint8_t action = ParseDExAction(params[6]);
+    uint8_t action = ParseDExAction(rq.params[6]);
 
     // perform conversions
     if (action <= CMPTransaction::UPDATE) { // actions 3 permit zero values, skip check
-        amountForSale = ParseAmount(params[2], true); // TMSC/MSC is divisible
-        amountDesired = ParseAmount(params[3], true); // BTC is divisible
-        paymentWindow = ParseDExPaymentWindow(params[4]);
-        minAcceptFee = ParseDExFee(params[5]);
+        amountForSale = ParseAmount(rq.params[2], true); // TMSC/MSC is divisible
+        amountDesired = ParseAmount(rq.params[3], true); // BTC is divisible
+        paymentWindow = ParseDExPaymentWindow(rq.params[4]);
+        minAcceptFee = ParseDExFee(rq.params[5]);
     }
 
     // perform checks
@@ -276,9 +370,9 @@ UniValue omni_senddexsell(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_senddexaccept(const UniValue& params, bool fHelp)
+UniValue omni_senddexaccept(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 4 || params.size() > 5)
+    if (rq.fHelp || rq.params.size() < 4 || rq.params.size() > 5)
         throw runtime_error(
             "omni_senddexaccept \"fromaddress\" \"toaddress\" propertyid \"amount\" ( override )\n"
 
@@ -300,11 +394,11 @@ UniValue omni_senddexaccept(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    std::string toAddress = ParseAddress(params[1]);
-    uint32_t propertyId = ParsePropertyId(params[2]);
-    int64_t amount = ParseAmount(params[3], true); // MSC/TMSC is divisible
-    bool override = (params.size() > 4) ? params[4].get_bool(): false;
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::string toAddress = ParseAddress(rq.params[1]);
+    uint32_t propertyId = ParsePropertyId(rq.params[2]);
+    int64_t amount = ParseAmount(rq.params[3], true); // MSC/TMSC is divisible
+    bool override = (rq.params.size() > 4) ? rq.params[4].get_bool(): false;
 
     // perform checks
     RequirePrimaryToken(propertyId);
@@ -358,9 +452,9 @@ UniValue omni_senddexaccept(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendissuancecrowdsale(const UniValue& params, bool fHelp)
+UniValue omni_sendissuancecrowdsale(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 14)
+    if (rq.fHelp || rq.params.size() != 14)
         throw runtime_error(
             "omni_sendissuancecrowdsale \"fromaddress\" ecosystem type previousid \"category\" \"subcategory\" \"name\" \"url\" \"data\" propertyiddesired tokensperunit deadline ( earlybonus issuerpercentage )\n"
 
@@ -391,20 +485,20 @@ UniValue omni_sendissuancecrowdsale(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint8_t ecosystem = ParseEcosystem(params[1]);
-    uint16_t type = ParsePropertyType(params[2]);
-    uint32_t previousId = ParsePreviousPropertyId(params[3]);
-    std::string category = ParseText(params[4]);
-    std::string subcategory = ParseText(params[5]);
-    std::string name = ParseText(params[6]);
-    std::string url = ParseText(params[7]);
-    std::string data = ParseText(params[8]);
-    uint32_t propertyIdDesired = ParsePropertyId(params[9]);
-    int64_t numTokens = ParseAmount(params[10], type);
-    int64_t deadline = ParseDeadline(params[11]);
-    uint8_t earlyBonus = ParseEarlyBirdBonus(params[12]);
-    uint8_t issuerPercentage = ParseIssuerBonus(params[13]);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[1]);
+    uint16_t type = ParsePropertyType(rq.params[2]);
+    uint32_t previousId = ParsePreviousPropertyId(rq.params[3]);
+    std::string category = ParseText(rq.params[4]);
+    std::string subcategory = ParseText(rq.params[5]);
+    std::string name = ParseText(rq.params[6]);
+    std::string url = ParseText(rq.params[7]);
+    std::string data = ParseText(rq.params[8]);
+    uint32_t propertyIdDesired = ParsePropertyId(rq.params[9]);
+    int64_t numTokens = ParseAmount(rq.params[10], type);
+    int64_t deadline = ParseDeadline(rq.params[11]);
+    uint8_t earlyBonus = ParseEarlyBirdBonus(rq.params[12]);
+    uint8_t issuerPercentage = ParseIssuerBonus(rq.params[13]);
 
     // perform checks
     RequirePropertyName(name);
@@ -431,9 +525,9 @@ UniValue omni_sendissuancecrowdsale(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendissuancefixed(const UniValue& params, bool fHelp)
+UniValue omni_sendissuancefixed(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 10)
+    if (rq.fHelp || rq.params.size() != 10)
         throw runtime_error(
             "omni_sendissuancefixed \"fromaddress\" ecosystem type previousid \"category\" \"subcategory\" \"name\" \"url\" \"data\" \"amount\"\n"
 
@@ -460,16 +554,16 @@ UniValue omni_sendissuancefixed(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint8_t ecosystem = ParseEcosystem(params[1]);
-    uint16_t type = ParsePropertyType(params[2]);
-    uint32_t previousId = ParsePreviousPropertyId(params[3]);
-    std::string category = ParseText(params[4]);
-    std::string subcategory = ParseText(params[5]);
-    std::string name = ParseText(params[6]);
-    std::string url = ParseText(params[7]);
-    std::string data = ParseText(params[8]);
-    int64_t amount = ParseAmount(params[9], type);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[1]);
+    uint16_t type = ParsePropertyType(rq.params[2]);
+    uint32_t previousId = ParsePreviousPropertyId(rq.params[3]);
+    std::string category = ParseText(rq.params[4]);
+    std::string subcategory = ParseText(rq.params[5]);
+    std::string name = ParseText(rq.params[6]);
+    std::string url = ParseText(rq.params[7]);
+    std::string data = ParseText(rq.params[8]);
+    int64_t amount = ParseAmount(rq.params[9], type);
 
     // perform checks
     RequirePropertyName(name);
@@ -494,9 +588,9 @@ UniValue omni_sendissuancefixed(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendissuancemanaged(const UniValue& params, bool fHelp)
+UniValue omni_sendissuancemanaged(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 9)
+    if (rq.fHelp || rq.params.size() != 9)
         throw runtime_error(
             "omni_sendissuancemanaged \"fromaddress\" ecosystem type previousid \"category\" \"subcategory\" \"name\" \"url\" \"data\"\n"
 
@@ -522,15 +616,15 @@ UniValue omni_sendissuancemanaged(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint8_t ecosystem = ParseEcosystem(params[1]);
-    uint16_t type = ParsePropertyType(params[2]);
-    uint32_t previousId = ParsePreviousPropertyId(params[3]);
-    std::string category = ParseText(params[4]);
-    std::string subcategory = ParseText(params[5]);
-    std::string name = ParseText(params[6]);
-    std::string url = ParseText(params[7]);
-    std::string data = ParseText(params[8]);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[1]);
+    uint16_t type = ParsePropertyType(rq.params[2]);
+    uint32_t previousId = ParsePreviousPropertyId(rq.params[3]);
+    std::string category = ParseText(rq.params[4]);
+    std::string subcategory = ParseText(rq.params[5]);
+    std::string name = ParseText(rq.params[6]);
+    std::string url = ParseText(rq.params[7]);
+    std::string data = ParseText(rq.params[8]);
 
     // perform checks
     RequirePropertyName(name);
@@ -555,9 +649,9 @@ UniValue omni_sendissuancemanaged(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendsto(const UniValue& params, bool fHelp)
+UniValue omni_sendsto(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 3 || params.size() > 5)
+    if (rq.fHelp || rq.params.size() < 3 || rq.params.size() > 5)
         throw runtime_error(
             "omni_sendsto \"fromaddress\" propertyid \"amount\" ( \"redeemaddress\" distributionproperty )\n"
 
@@ -579,11 +673,11 @@ UniValue omni_sendsto(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint32_t propertyId = ParsePropertyId(params[1]);
-    int64_t amount = ParseAmount(params[2], isPropertyDivisible(propertyId));
-    std::string redeemAddress = (params.size() > 3 && !ParseText(params[3]).empty()) ? ParseAddress(params[3]): "";
-    uint32_t distributionPropertyId = (params.size() > 4) ? ParsePropertyId(params[4]) : propertyId;
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyId = ParsePropertyId(rq.params[1]);
+    int64_t amount = ParseAmount(rq.params[2], isPropertyDivisible(propertyId));
+    std::string redeemAddress = (rq.params.size() > 3 && !ParseText(rq.params[3]).empty()) ? ParseAddress(rq.params[3]): "";
+    uint32_t distributionPropertyId = (rq.params.size() > 4) ? ParsePropertyId(rq.params[4]) : propertyId;
 
     // perform checks
     RequireBalance(fromAddress, propertyId, amount);
@@ -609,9 +703,9 @@ UniValue omni_sendsto(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendgrant(const UniValue& params, bool fHelp)
+UniValue omni_sendgrant(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 4 || params.size() > 5)
+    if (rq.fHelp || rq.params.size() < 4 || rq.params.size() > 5)
         throw runtime_error(
             "omni_sendgrant \"fromaddress\" \"toaddress\" propertyid \"amount\" ( \"memo\" )\n"
 
@@ -633,11 +727,11 @@ UniValue omni_sendgrant(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    std::string toAddress = !ParseText(params[1]).empty() ? ParseAddress(params[1]): "";
-    uint32_t propertyId = ParsePropertyId(params[2]);
-    int64_t amount = ParseAmount(params[3], isPropertyDivisible(propertyId));
-    std::string memo = (params.size() > 4) ? ParseText(params[4]): "";
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::string toAddress = !ParseText(rq.params[1]).empty() ? ParseAddress(rq.params[1]): "";
+    uint32_t propertyId = ParsePropertyId(rq.params[2]);
+    int64_t amount = ParseAmount(rq.params[3], isPropertyDivisible(propertyId));
+    std::string memo = (rq.params.size() > 4) ? ParseText(rq.params[4]): "";
 
     // perform checks
     RequireExistingProperty(propertyId);
@@ -664,9 +758,9 @@ UniValue omni_sendgrant(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendrevoke(const UniValue& params, bool fHelp)
+UniValue omni_sendrevoke(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 3 || params.size() > 4)
+    if (rq.fHelp || rq.params.size() < 3 || rq.params.size() > 4)
         throw runtime_error(
             "omni_sendrevoke \"fromaddress\" propertyid \"amount\" ( \"memo\" )\n"
 
@@ -687,10 +781,10 @@ UniValue omni_sendrevoke(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint32_t propertyId = ParsePropertyId(params[1]);
-    int64_t amount = ParseAmount(params[2], isPropertyDivisible(propertyId));
-    std::string memo = (params.size() > 3) ? ParseText(params[3]): "";
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyId = ParsePropertyId(rq.params[1]);
+    int64_t amount = ParseAmount(rq.params[2], isPropertyDivisible(propertyId));
+    std::string memo = (rq.params.size() > 3) ? ParseText(rq.params[3]): "";
 
     // perform checks
     RequireExistingProperty(propertyId);
@@ -718,9 +812,9 @@ UniValue omni_sendrevoke(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendclosecrowdsale(const UniValue& params, bool fHelp)
+UniValue omni_sendclosecrowdsale(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 2)
+    if (rq.fHelp || rq.params.size() != 2)
         throw runtime_error(
             "omni_sendclosecrowdsale \"fromaddress\" propertyid\n"
 
@@ -739,8 +833,8 @@ UniValue omni_sendclosecrowdsale(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint32_t propertyId = ParsePropertyId(params[1]);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyId = ParsePropertyId(rq.params[1]);
 
     // perform checks
     RequireExistingProperty(propertyId);
@@ -768,9 +862,10 @@ UniValue omni_sendclosecrowdsale(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue trade_MP(const UniValue& params, bool fHelp)
+/*
+UniValue trade_MP(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 6)
+    if (rq.fHelp || rq.params.size() != 6)
         throw runtime_error(
             "trade_MP \"fromaddress\" propertyidforsale \"amountforsale\" propertiddesired \"amountdesired\" action\n"
             "\nNote: this command is depreciated, and was replaced by:\n"
@@ -781,58 +876,59 @@ UniValue trade_MP(const UniValue& params, bool fHelp)
         );
 
     UniValue values(UniValue::VARR);
-    uint8_t action = ParseMetaDExAction(params[5]);
+    uint8_t action = ParseMetaDExAction(rq.params[5]);
 
     // Forward to the new commands, based on action value
     switch (action) {
         case CMPTransaction::ADD:
         {
-            values.push_back(params[0]); // fromAddress
-            values.push_back(params[1]); // propertyIdForSale
-            values.push_back(params[2]); // amountForSale
-            values.push_back(params[3]); // propertyIdDesired
-            values.push_back(params[4]); // amountDesired
-            return omni_sendtrade(values, fHelp);
+            values.push_back(rq.params[0]); // fromAddress
+            values.push_back(rq.params[1]); // propertyIdForSale
+            values.push_back(rq.params[2]); // amountForSale
+            values.push_back(rq.params[3]); // propertyIdDesired
+            values.push_back(rq.params[4]); // amountDesired
+            return omni_sendtrade(values, rq.fHelp);
         }
         case CMPTransaction::CANCEL_AT_PRICE:
         {
-            values.push_back(params[0]); // fromAddress
-            values.push_back(params[1]); // propertyIdForSale
-            values.push_back(params[2]); // amountForSale
-            values.push_back(params[3]); // propertyIdDesired
-            values.push_back(params[4]); // amountDesired
-            return omni_sendcanceltradesbyprice(values, fHelp);
+            values.push_back(rq.params[0]); // fromAddress
+            values.push_back(rq.params[1]); // propertyIdForSale
+            values.push_back(rq.params[2]); // amountForSale
+            values.push_back(rq.params[3]); // propertyIdDesired
+            values.push_back(rq.params[4]); // amountDesired
+            return omni_sendcanceltradesbyprice(values, rq.fHelp);
         }
         case CMPTransaction::CANCEL_ALL_FOR_PAIR:
         {
-            values.push_back(params[0]); // fromAddress
-            values.push_back(params[1]); // propertyIdForSale
-            values.push_back(params[3]); // propertyIdDesired
-            return omni_sendcanceltradesbypair(values, fHelp);
+            values.push_back(rq.params[0]); // fromAddress
+            values.push_back(rq.params[1]); // propertyIdForSale
+            values.push_back(rq.params[3]); // propertyIdDesired
+            return omni_sendcanceltradesbypair(values, rq.fHelp);
         }
         case CMPTransaction::CANCEL_EVERYTHING:
         {
             uint8_t ecosystem = 0;
-            if (isMainEcosystemProperty(params[1].get_int64())
-                    && isMainEcosystemProperty(params[3].get_int64())) {
+            if (isMainEcosystemProperty(rq.params[1].get_int64())
+                    && isMainEcosystemProperty(rq.params[3].get_int64())) {
                 ecosystem = OMNI_PROPERTY_MSC;
             }
-            if (isTestEcosystemProperty(params[1].get_int64())
-                    && isTestEcosystemProperty(params[3].get_int64())) {
+            if (isTestEcosystemProperty(rq.params[1].get_int64())
+                    && isTestEcosystemProperty(rq.params[3].get_int64())) {
                 ecosystem = OMNI_PROPERTY_TMSC;
             }
-            values.push_back(params[0]); // fromAddress
+            values.push_back(rq.params[0]); // fromAddress
             values.push_back(ecosystem);
-            return omni_sendcancelalltrades(values, fHelp);
+            return omni_sendcancelalltrades(values, rq.fHelp);
         }
     }
 
     throw JSONRPCError(RPC_TYPE_ERROR, "Invalid action (1,2,3,4 only)");
 }
+*/
 
-UniValue omni_sendtrade(const UniValue& params, bool fHelp)
+UniValue omni_sendtrade(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 5)
+    if (rq.fHelp || rq.params.size() != 5)
         throw runtime_error(
             "omni_sendtrade \"fromaddress\" propertyidforsale \"amountforsale\" propertiddesired \"amountdesired\"\n"
 
@@ -854,11 +950,11 @@ UniValue omni_sendtrade(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint32_t propertyIdForSale = ParsePropertyId(params[1]);
-    int64_t amountForSale = ParseAmount(params[2], isPropertyDivisible(propertyIdForSale));
-    uint32_t propertyIdDesired = ParsePropertyId(params[3]);
-    int64_t amountDesired = ParseAmount(params[4], isPropertyDivisible(propertyIdDesired));
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyIdForSale = ParsePropertyId(rq.params[1]);
+    int64_t amountForSale = ParseAmount(rq.params[2], isPropertyDivisible(propertyIdForSale));
+    uint32_t propertyIdDesired = ParsePropertyId(rq.params[3]);
+    int64_t amountDesired = ParseAmount(rq.params[4], isPropertyDivisible(propertyIdDesired));
 
     // perform checks
     RequireExistingProperty(propertyIdForSale);
@@ -888,9 +984,9 @@ UniValue omni_sendtrade(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendcanceltradesbyprice(const UniValue& params, bool fHelp)
+UniValue omni_sendcanceltradesbyprice(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 5)
+    if (rq.fHelp || rq.params.size() != 5)
         throw runtime_error(
             "omni_sendcanceltradesbyprice \"fromaddress\" propertyidforsale \"amountforsale\" propertiddesired \"amountdesired\"\n"
 
@@ -912,11 +1008,11 @@ UniValue omni_sendcanceltradesbyprice(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint32_t propertyIdForSale = ParsePropertyId(params[1]);
-    int64_t amountForSale = ParseAmount(params[2], isPropertyDivisible(propertyIdForSale));
-    uint32_t propertyIdDesired = ParsePropertyId(params[3]);
-    int64_t amountDesired = ParseAmount(params[4], isPropertyDivisible(propertyIdDesired));
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyIdForSale = ParsePropertyId(rq.params[1]);
+    int64_t amountForSale = ParseAmount(rq.params[2], isPropertyDivisible(propertyIdForSale));
+    uint32_t propertyIdDesired = ParsePropertyId(rq.params[3]);
+    int64_t amountDesired = ParseAmount(rq.params[4], isPropertyDivisible(propertyIdDesired));
 
     // perform checks
     RequireExistingProperty(propertyIdForSale);
@@ -946,9 +1042,9 @@ UniValue omni_sendcanceltradesbyprice(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendcanceltradesbypair(const UniValue& params, bool fHelp)
+UniValue omni_sendcanceltradesbypair(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 3)
+    if (rq.fHelp || rq.params.size() != 3)
         throw runtime_error(
             "omni_sendcanceltradesbypair \"fromaddress\" propertyidforsale propertiddesired\n"
 
@@ -968,9 +1064,9 @@ UniValue omni_sendcanceltradesbypair(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint32_t propertyIdForSale = ParsePropertyId(params[1]);
-    uint32_t propertyIdDesired = ParsePropertyId(params[2]);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyIdForSale = ParsePropertyId(rq.params[1]);
+    uint32_t propertyIdDesired = ParsePropertyId(rq.params[2]);
 
     // perform checks
     RequireExistingProperty(propertyIdForSale);
@@ -1000,9 +1096,9 @@ UniValue omni_sendcanceltradesbypair(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendcancelalltrades(const UniValue& params, bool fHelp)
+UniValue omni_sendcancelalltrades(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 2)
+    if (rq.fHelp || rq.params.size() != 2)
         throw runtime_error(
             "omni_sendcancelalltrades \"fromaddress\" ecosystem\n"
 
@@ -1021,8 +1117,8 @@ UniValue omni_sendcancelalltrades(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint8_t ecosystem = ParseEcosystem(params[1]);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[1]);
 
     // perform checks
     // TODO: check, if there are matching offers to cancel
@@ -1048,9 +1144,9 @@ UniValue omni_sendcancelalltrades(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendchangeissuer(const UniValue& params, bool fHelp)
+UniValue omni_sendchangeissuer(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 3)
+    if (rq.fHelp || rq.params.size() != 3)
         throw runtime_error(
             "omni_sendchangeissuer \"fromaddress\" \"toaddress\" propertyid\n"
 
@@ -1070,9 +1166,9 @@ UniValue omni_sendchangeissuer(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    std::string toAddress = ParseAddress(params[1]);
-    uint32_t propertyId = ParsePropertyId(params[2]);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::string toAddress = ParseAddress(rq.params[1]);
+    uint32_t propertyId = ParsePropertyId(rq.params[2]);
 
     // perform checks
     RequireExistingProperty(propertyId);
@@ -1098,9 +1194,9 @@ UniValue omni_sendchangeissuer(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendenablefreezing(const UniValue& params, bool fHelp)
+UniValue omni_sendenablefreezing(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 2)
+    if (rq.fHelp || rq.params.size() != 2)
         throw runtime_error(
             "omni_sendenablefreezing \"fromaddress\" propertyid\n"
 
@@ -1119,8 +1215,8 @@ UniValue omni_sendenablefreezing(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint32_t propertyId = ParsePropertyId(params[1]);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyId = ParsePropertyId(rq.params[1]);
 
     // perform checks
     RequireExistingProperty(propertyId);
@@ -1147,9 +1243,9 @@ UniValue omni_sendenablefreezing(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_senddisablefreezing(const UniValue& params, bool fHelp)
+UniValue omni_senddisablefreezing(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 2)
+    if (rq.fHelp || rq.params.size() != 2)
         throw runtime_error(
             "omni_senddisablefreezing \"fromaddress\" propertyid\n"
 
@@ -1169,8 +1265,8 @@ UniValue omni_senddisablefreezing(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint32_t propertyId = ParsePropertyId(params[1]);
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyId = ParsePropertyId(rq.params[1]);
 
     // perform checks
     RequireExistingProperty(propertyId);
@@ -1197,9 +1293,9 @@ UniValue omni_senddisablefreezing(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendfreeze(const UniValue& params, bool fHelp)
+UniValue omni_sendfreeze(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 4)
+    if (rq.fHelp || rq.params.size() != 4)
         throw runtime_error(
             "omni_sendfreeze \"fromaddress\" \"toaddress\" propertyid amount \n"
             "\nFreeze an address for a centrally managed token.\n"
@@ -1217,10 +1313,10 @@ UniValue omni_sendfreeze(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    std::string refAddress = ParseAddress(params[1]);
-    uint32_t propertyId = ParsePropertyId(params[2]);
-    int64_t amount = ParseAmount(params[3], isPropertyDivisible(propertyId));
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::string refAddress = ParseAddress(rq.params[1]);
+    uint32_t propertyId = ParsePropertyId(rq.params[2]);
+    int64_t amount = ParseAmount(rq.params[3], isPropertyDivisible(propertyId));
 
     // perform checks
     RequireExistingProperty(propertyId);
@@ -1248,9 +1344,9 @@ UniValue omni_sendfreeze(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendunfreeze(const UniValue& params, bool fHelp)
+UniValue omni_sendunfreeze(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 4)
+    if (rq.fHelp || rq.params.size() != 4)
         throw runtime_error(
             "omni_sendunfreeze \"fromaddress\" \"toaddress\" propertyid amount \n"
             "\nUnfreezes an address for a centrally managed token.\n"
@@ -1268,10 +1364,10 @@ UniValue omni_sendunfreeze(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    std::string refAddress = ParseAddress(params[1]);
-    uint32_t propertyId = ParsePropertyId(params[2]);
-    int64_t amount = ParseAmount(params[3], isPropertyDivisible(propertyId));
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    std::string refAddress = ParseAddress(rq.params[1]);
+    uint32_t propertyId = ParsePropertyId(rq.params[2]);
+    int64_t amount = ParseAmount(rq.params[3], isPropertyDivisible(propertyId));
 
     // perform checks
     RequireExistingProperty(propertyId);
@@ -1299,9 +1395,9 @@ UniValue omni_sendunfreeze(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendactivation(const UniValue& params, bool fHelp)
+UniValue omni_sendactivation(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 4)
+    if (rq.fHelp || rq.params.size() != 4)
         throw runtime_error(
             "omni_sendactivation \"fromaddress\" featureid block minclientversion\n"
             "\nActivate a protocol feature.\n"
@@ -1319,10 +1415,10 @@ UniValue omni_sendactivation(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint16_t featureId = params[1].get_int();
-    uint32_t activationBlock = params[2].get_int();
-    uint32_t minClientVersion = params[3].get_int();
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint16_t featureId = rq.params[1].get_int();
+    uint32_t activationBlock = rq.params[2].get_int();
+    uint32_t minClientVersion = rq.params[3].get_int();
 
     // create a payload for the transaction
     std::vector<unsigned char> payload = CreatePayload_ActivateFeature(featureId, activationBlock, minClientVersion);
@@ -1344,9 +1440,9 @@ UniValue omni_sendactivation(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_senddeactivation(const UniValue& params, bool fHelp)
+UniValue omni_senddeactivation(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 2)
+    if (rq.fHelp || rq.params.size() != 2)
         throw runtime_error(
             "omni_senddeactivation \"fromaddress\" featureid\n"
             "\nDeactivate a protocol feature.  For Emergency Use Only.\n"
@@ -1362,8 +1458,8 @@ UniValue omni_senddeactivation(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    uint16_t featureId = params[1].get_int64();
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    uint16_t featureId = rq.params[1].get_int64();
 
     // create a payload for the transaction
     std::vector<unsigned char> payload = CreatePayload_DeactivateFeature(featureId);
@@ -1385,9 +1481,9 @@ UniValue omni_senddeactivation(const UniValue& params, bool fHelp)
     }
 }
 
-UniValue omni_sendalert(const UniValue& params, bool fHelp)
+UniValue omni_sendalert(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 4)
+    if (rq.fHelp || rq.params.size() != 4)
         throw runtime_error(
             "omni_sendalert \"fromaddress\" alerttype expiryvalue typecheck versioncheck \"message\"\n"
             "\nCreates and broadcasts an Omni Core alert.\n"
@@ -1405,18 +1501,18 @@ UniValue omni_sendalert(const UniValue& params, bool fHelp)
         );
 
     // obtain parameters & info
-    std::string fromAddress = ParseAddress(params[0]);
-    int64_t tempAlertType = params[1].get_int64();
+    std::string fromAddress = ParseAddress(rq.params[0]);
+    int64_t tempAlertType = rq.params[1].get_int64();
     if (tempAlertType < 1 || 65535 < tempAlertType) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Alert type is out of range");
     }
     uint16_t alertType = static_cast<uint16_t>(tempAlertType);
-    int64_t tempExpiryValue = params[2].get_int64();
+    int64_t tempExpiryValue = rq.params[2].get_int64();
     if (tempExpiryValue < 1 || 4294967295LL < tempExpiryValue) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Expiry value is out of range");
     }
     uint32_t expiryValue = static_cast<uint32_t>(tempExpiryValue);
-    std::string alertMessage = ParseText(params[3]);
+    std::string alertMessage = ParseText(rq.params[3]);
 
     // create a payload for the transaction
     std::vector<unsigned char> payload = CreatePayload_OmniCoreAlert(alertType, expiryValue, alertMessage);
@@ -1466,12 +1562,14 @@ static const CRPCCommand commands[] =
     { "hidden",                            "omni_senddeactivation",        &omni_senddeactivation,        true  },
     { "hidden",                            "omni_sendactivation",          &omni_sendactivation,          false },
     { "hidden",                            "omni_sendalert",               &omni_sendalert,               true  },
+    { "omni layer (transaction creation)", "omni_funded_send",             &omni_funded_send,             false },
+    { "omni layer (transaction creation)", "omni_funded_sendall",          &omni_funded_sendall,          false },
 
     /* depreciated: */
     { "hidden",                            "sendrawtx_MP",                 &omni_sendrawtx,               false },
     { "hidden",                            "send_MP",                      &omni_send,                    false },
     { "hidden",                            "sendtoowners_MP",              &omni_sendsto,                 false },
-    { "hidden",                            "trade_MP",                     &trade_MP,                     false },
+//    { "hidden",                            "trade_MP",                     &trade_MP,                     false },
 #endif
 };
 

@@ -16,7 +16,7 @@ OpenURIDialog::OpenURIDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 #if QT_VERSION >= 0x040700
-    ui->uriEdit->setPlaceholderText("uniasset:");
+    ui->uriEdit->setPlaceholderText("ufo:");
 #endif
 }
 
@@ -48,5 +48,5 @@ void OpenURIDialog::on_selectFileButton_clicked()
     if(filename.isEmpty())
         return;
     QUrl fileUri = QUrl::fromLocalFile(filename);
-    ui->uriEdit->setText("uniasset:?r=" + QUrl::toPercentEncoding(fileUri.toString()));
+    ui->uriEdit->setText("ufo:?r=" + QUrl::toPercentEncoding(fileUri.toString()));
 }

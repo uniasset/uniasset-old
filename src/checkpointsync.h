@@ -5,10 +5,11 @@
 #ifndef BITCOIN_CHECKPOINTSYNC_H
 #define  BITCOIN_CHECKPOINTSYNC_H
 
-#include "net.h"
-#include "hash.h"
-#include "util.h"
-#include "arith_uint256.h"
+#include <net.h>
+#include <hash.h>
+#include <netmessagemaker.h>
+#include <util.h>
+#include <arith_uint256.h>
 
 class uint256;
 class CBlock;
@@ -32,6 +33,7 @@ void AskForPendingSyncCheckpoint(CNode* pfrom);
 bool CheckCheckpointPubKey();
 bool SetCheckpointPrivKey(std::string strPrivKey);
 bool SendSyncCheckpoint(uint256 hashCheckpoint);
+bool SetBestChain(CValidationState& state, CBlockIndex* pindexNew);
 
 // Synchronized checkpoint (introduced first in ppcoin)
 class CUnsignedSyncCheckpoint
@@ -42,7 +44,7 @@ public:
 
     ADD_SERIALIZE_METHODS;
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+    inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(this->nVersion);
         nVersion = this->nVersion;
         READWRITE(hashCheckpoint);
@@ -52,7 +54,7 @@ public:
     {
         nVersion = 1;
         hashCheckpoint = ArithToUint256(arith_uint256(0));
-    }    
+    }
 
     std::string ToString() const
     {
@@ -84,9 +86,9 @@ public:
     }
 
     ADD_SERIALIZE_METHODS;
-    
+
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+    inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(vchMsg);
         READWRITE(vchSig);
     }
@@ -108,13 +110,16 @@ public:
         return Hash(this->vchMsg.begin(), this->vchMsg.end());
     }
 
-    bool RelayTo(CNode* pnode) const
+    bool RelayTo(CNode* pfrom) const
     {
+        const CNetMsgMaker msgMaker(pfrom->GetSendVersion());
+
         // returns true if wasn't already sent
-        if (pnode->hashCheckpointKnown != hashCheckpoint)
+        if (pfrom->hashCheckpointKnown != hashCheckpoint)
         {
-            pnode->hashCheckpointKnown = hashCheckpoint;
-            pnode->PushMessage(NetMsgType::CHECKPOINT, *this);
+            CConnman& connman = *g_connman;
+            pfrom->hashCheckpointKnown = hashCheckpoint;
+            connman.PushMessage(pfrom, msgMaker.Make(NetMsgType::CHECKPOINT, *this));
             return true;
         }
         return false;

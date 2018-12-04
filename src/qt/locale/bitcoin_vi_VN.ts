@@ -41,6 +41,26 @@
         <source>&amp;Delete</source>
         <translation>&amp;Xó&amp;a</translation>
     </message>
+    <message>
+        <source>Choose the address to send coins to</source>
+        <translation>Chọn địa chỉ để gửi coin đến</translation>
+    </message>
+    <message>
+        <source>Choose the address to receive coins with</source>
+        <translation>Chọn địa chỉ để nhận coin</translation>
+    </message>
+    <message>
+        <source>C&amp;hoose</source>
+        <translation>Chọn</translation>
+    </message>
+    <message>
+        <source>Sending addresses</source>
+        <translation>Địa chỉ gửi đến</translation>
+    </message>
+    <message>
+        <source>Receiving addresses</source>
+        <translation>Địa chỉ nhận</translation>
+    </message>
     </context>
 <context>
     <name>AddressTableModel</name>
@@ -238,8 +258,8 @@
         <translation>Thanh công cụ (toolbar)</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and uniasset: URIs)</source>
-        <translation>Yêu cầu thanh toán(tạo mã QR và địa chỉ uniasset: URLs)</translation>
+        <source>Request payments (generates QR codes and ufo: URIs)</source>
+        <translation>Yêu cầu thanh toán(tạo mã QR và địa chỉ ufo: URLs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -250,32 +270,24 @@
         <translation>Hiện thỉ danh sách các địa chỉ và nhãn đã dùng để nhận.</translation>
     </message>
     <message>
-        <source>Open a uniasset: URI or payment request</source>
-        <translation>Mở uniasset:URL hoặc yêu cầu thanh toán</translation>
+        <source>Open a ufo: URI or payment request</source>
+        <translation>Mở ufo:URL hoặc yêu cầu thanh toán</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
         <translation>7Tùy chọn dòng lệnh</translation>
     </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation><numerusform>%n giờ</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation><numerusform>%n ngày</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation><numerusform>%n tuần</numerusform></translation>
+    <message>
+        <source>%1 behind</source>
+        <translation>%1 chậm trễ</translation>
     </message>
     <message>
-        <source>%1 and %2</source>
-        <translation>%1 và %2</translation>
+        <source>Last received block was generated %1 ago.</source>
+        <translation>Khối (block) cuối cùng nhận được cách đây %1</translation>
     </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation><numerusform>%n năm</numerusform></translation>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation>Những giao dịch sau đó sẽ không hiện thị.</translation>
     </message>
     <message>
         <source>%1 behind</source>
@@ -355,7 +367,7 @@
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>Ví tiền &lt;b&gt; đã được mã hóa&lt;/b&gt;và hiện &lt;b&gt;đang khóa&lt;/b&gt;</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>CoinControlDialog</name>
     <message>
@@ -369,10 +381,6 @@
     <message>
         <source>Amount:</source>
         <translation>Lượng:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Tầm quan trọng:</translation>
     </message>
     <message>
         <source>Fee:</source>
@@ -413,10 +421,6 @@
     <message>
         <source>Confirmed</source>
         <translation>Đã xác nhận</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Tầm quan trọng</translation>
     </message>
     </context>
 <context>
@@ -485,6 +489,17 @@
     <message>
         <source>Error</source>
         <translation>Lỗi</translation>
+    </message>
+    </context>
+<context>
+    <name>ModalOverlay</name>
+    <message>
+        <source>Form</source>
+        <translation>Form</translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation>Ẩn</translation>
     </message>
     </context>
 <context>
@@ -615,6 +630,20 @@
     <message>
         <source>Amount</source>
         <translation>Lượng</translation>
+    </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 và %2</translation>
+    </message>
+    </context>
+<context>
+    <name>QObject::QObject</name>
+    </context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>$Lưu hình ảnh...</translation>
     </message>
     </context>
 <context>
@@ -785,6 +814,10 @@
         <translation>URI</translation>
     </message>
     <message>
+        <source>Amount</source>
+        <translation>Lượng</translation>
+    </message>
+    <message>
         <source>Message</source>
         <translation>Tin nhắn</translation>
     </message>
@@ -839,10 +872,6 @@
         <translation>Lượng:</translation>
     </message>
     <message>
-        <source>Priority:</source>
-        <translation>Tầm quan trọng:</translation>
-    </message>
-    <message>
         <source>Fee:</source>
         <translation>Phí:</translation>
     </message>
@@ -881,10 +910,6 @@
     <message>
         <source>(read the tooltip)</source>
         <translation>(Đọc hướng dẫn)</translation>
-    </message>
-    <message>
-        <source>Confirmation time:</source>
-        <translation>Thời gian xác nhận</translation>
     </message>
     <message>
         <source>normal</source>
@@ -974,6 +999,10 @@
     <message>
         <source>Message</source>
         <translation>Tin nhắn</translation>
+    </message>
+    <message>
+        <source>Amount</source>
+        <translation>Lượng</translation>
     </message>
     </context>
 <context>

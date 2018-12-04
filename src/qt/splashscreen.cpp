@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -33,13 +33,7 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     QWidget(0, f), curAlignment(0)
 {
     // set reference point, paddings
-/*
-    int paddingLeft             = 33;
-    int paddingTop              = 245;
-    int titleVersionVSpace      = 40;
-    int titleCopyrightVSpace    = 58;
-*/
-    int paddingRight            = 80;
+    int paddingRight            = 30;
     int paddingTop              = 50;
     int titleVersionVSpace      = 20;
     int titleCopyrightVSpace    = 40;
@@ -51,12 +45,13 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
 #endif
 
     // define text to place
-    QString titleText       = tr("UFOmnicore Core");
+    QString titleText       = tr("UFOmnicore");
     QString versionText     = QString("Version %1").arg(QString::fromStdString(FormatFullVersion()));
     QString copyrightText   = QString::fromUtf8(CopyrightHolders(strprintf("\xc2\xA9 %u-%u ", 2014, COPYRIGHT_YEAR)).c_str());
     QString titleAddText    = networkStyle->getTitleAddText();
 
     QString font            = QApplication::font().toString();
+
 
     // load the bitmap for writing some text over it
     if (mastercore::isNonMainNet()) {
@@ -65,15 +60,39 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
         pixmap     = QPixmap(":/images/splash");
     }
 
+    // create a bitmap according to device pixelratio
+    QSize splashSize(  480*devicePixelRatio, 320*devicePixelRatio);
+//    pixmap = QPixmap(splashSize);
+
+/*
+#if QT_VERSION > 0x050100
+    // change to HiDPI if it makes sense
+    pixmap.setDevicePixelRatio(devicePixelRatio);
+#endif
+*/
+
     QPainter pixPaint(&pixmap);
     pixPaint.setPen(QColor(100,100,100));
 
+    // draw a slightly radial gradient
+    QRadialGradient gradient(QPoint(0,0), splashSize.width()/devicePixelRatio);
+    gradient.setColorAt(0, Qt::white);
+    gradient.setColorAt(1, QColor(247,247,247));
+    QRect rGradient(QPoint(0,0), splashSize);
+    pixPaint.fillRect(rGradient, gradient);
+
+    // draw the bitcoin icon, expected size of PNG: 1024x1024
+    QRect rectIcon(QPoint(-20,-50), QSize(400,400));
+
+    const QSize requiredSize(1024,1024);
+    QPixmap icon(networkStyle->getAppIcon().pixmap(requiredSize));
+
+    pixPaint.drawPixmap(rectIcon, icon);
+
+    // check font size and drawing with
+    pixPaint.setFont(QFont(font, 33*fontFactor));
     QFontMetrics fm = pixPaint.fontMetrics();
     int titleTextWidth = fm.width(titleText);
-/*
-    if (titleTextWidth > 176) {
-        fontFactor = fontFactor * 176 / titleTextWidth;
-*/
     if (titleTextWidth > 106) {
         fontFactor = fontFactor * 106 / titleTextWidth;
     }
@@ -163,9 +182,10 @@ static void ShowProgress(SplashScreen *splash, const std::string &title, int nPr
 }
 
 #ifdef ENABLE_WALLET
-static void ConnectWallet(SplashScreen *splash, CWallet* wallet)
+void SplashScreen::ConnectWallet(CWallet* wallet)
 {
-    wallet->ShowProgress.connect(boost::bind(ShowProgress, splash, _1, _2));
+    wallet->ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2));
+    connectedWallets.push_back(wallet);
 }
 #endif
 
@@ -175,7 +195,7 @@ void SplashScreen::subscribeToCoreSignals()
     uiInterface.InitMessage.connect(boost::bind(InitMessage, this, _1));
     uiInterface.ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2));
 #ifdef ENABLE_WALLET
-    uiInterface.LoadWallet.connect(boost::bind(ConnectWallet, this, _1));
+    uiInterface.LoadWallet.connect(boost::bind(&SplashScreen::ConnectWallet, this, _1));
 #endif
 }
 
@@ -185,8 +205,9 @@ void SplashScreen::unsubscribeFromCoreSignals()
     uiInterface.InitMessage.disconnect(boost::bind(InitMessage, this, _1));
     uiInterface.ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
 #ifdef ENABLE_WALLET
-    if(pwalletMain)
-        pwalletMain->ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
+    Q_FOREACH(CWallet* const & pwallet, connectedWallets) {
+        pwallet->ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
+    }
 #endif
 }
 

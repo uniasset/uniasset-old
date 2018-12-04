@@ -156,10 +156,14 @@ class ApplicationBundleInfo(object):
     def __init__(self, path):
         self.path = path
 <<<<<<< HEAD
+<<<<<<< HEAD
         appName = "OmniCore-Qt"
 =======
         appName = "UFO-Qt"
 >>>>>>> 8cf2aff4ff7a3793d11e637100ce4c6dc5d3bb9d
+=======
+        appName = "UFO-Qt"
+>>>>>>> b34656a2d0dd4f5f9c5070da7123a584d2752a51
         self.binaryPath = os.path.join(path, "Contents", "MacOS", appName)
         if not os.path.exists(self.binaryPath):
             raise RuntimeError("Could not find bundle binary for " + path)
@@ -343,8 +347,13 @@ def deployFrameworks(frameworks, bundlePath, binaryPath, strip, verbose, deploym
 
         # install_name_tool the new id into the binary
         changeInstallName(framework.installName, framework.deployedInstallName, binaryPath, verbose)
+<<<<<<< HEAD
 
         # Copy farmework to app bundle.
+=======
+        
+        # Copy framework to app bundle.
+>>>>>>> b34656a2d0dd4f5f9c5070da7123a584d2752a51
         deployedBinaryPath = copyFramework(framework, bundlePath, verbose)
         # Skip the rest if already was deployed.
         if deployedBinaryPath is None:
@@ -496,7 +505,7 @@ ap.add_argument("-no-strip", dest="strip", action="store_false", default=True, h
 ap.add_argument("-sign", dest="sign", action="store_true", default=False, help="sign .app bundle with codesign tool")
 ap.add_argument("-dmg", nargs="?", const="", metavar="basename", help="create a .dmg disk image; if basename is not specified, a camel-cased version of the app name is used")
 ap.add_argument("-fancy", nargs=1, metavar="plist", default=[], help="make a fancy looking disk image using the given plist file with instructions; requires -dmg to work")
-ap.add_argument("-add-qt-tr", nargs=1, metavar="languages", default=[], help="add Qt translation files to the bundle's ressources; the language list must be separated with commas, not with whitespace")
+ap.add_argument("-add-qt-tr", nargs=1, metavar="languages", default=[], help="add Qt translation files to the bundle's resources; the language list must be separated with commas, not with whitespace")
 ap.add_argument("-translations-dir", nargs=1, metavar="path", default=None, help="Path to Qt's translation files")
 ap.add_argument("-add-resources", nargs="+", metavar="path", default=[], help="list of additional files or folders to be copied into the bundle's resources; must be the last argument")
 ap.add_argument("-volname", nargs=1, metavar="volname", default=[], help="custom volume name for dmg")
@@ -609,10 +618,14 @@ else:
 # ------------------------------------------------
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 target = os.path.join("dist", "OmniCore-Qt.app")
 =======
 target = os.path.join("dist", "UFO-Qt.app")
 >>>>>>> 8cf2aff4ff7a3793d11e637100ce4c6dc5d3bb9d
+=======
+target = os.path.join("dist", "UFO-Qt.app")
+>>>>>>> b34656a2d0dd4f5f9c5070da7123a584d2752a51
 
 if verbose >= 2:
     print("+ Copying source bundle +")
@@ -799,12 +812,17 @@ if config.dmg is not None:
         except subprocess.CalledProcessError as e:
             sys.exit(e.returncode)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         m = re.search("/Volumes/(.+$)", output)
 =======
         
         m = re.search("/Volumes/(.+$)", output.decode())
 >>>>>>> 8cf2aff4ff7a3793d11e637100ce4c6dc5d3bb9d
+=======
+        
+        m = re.search("/Volumes/(.+$)", output.decode())
+>>>>>>> b34656a2d0dd4f5f9c5070da7123a584d2752a51
         disk_root = m.group(0)
         disk_name = m.group(1)
 

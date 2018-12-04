@@ -234,8 +234,8 @@
         <translation>Fül eszköztár</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and uniasset: URIs)</source>
-        <translation>Fizetési kérelem (QR-kódot és "uniasset:" URI azonosítót hoz létre)</translation>
+        <source>Request payments (generates QR codes and ufo: URIs)</source>
+        <translation>Fizetési kérelem (QR-kódot és "ufo:" URI azonosítót hoz létre)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -246,8 +246,8 @@
         <translation>A használt fogadó címek és címkék megtekintése</translation>
     </message>
     <message>
-        <source>Open a uniasset: URI or payment request</source>
-        <translation>"uniasset:" URI azonosító vagy fizetési kérelem megnyitása</translation>
+        <source>Open a ufo: URI or payment request</source>
+        <translation>"ufo:" URI azonosító vagy fizetési kérelem megnyitása</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -257,33 +257,9 @@
         <source>%n active connection(s) to UFO network</source>
         <translation><numerusform>%n aktív kapcsolat a UFO hálózathoz</numerusform><numerusform>%n aktív kapcsolat a UFO hálózathoz</numerusform></translation>
     </message>
-    <message>
-        <source>No block source available...</source>
-        <translation>Blokk forrása ismeretlen...</translation>
-    </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation><numerusform>%n blokk feldolgozva a tranzakció előzményből.</numerusform><numerusform>%n blokk feldolgozva a tranzakció előzményből.</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation><numerusform>%n óra</numerusform><numerusform>%n óra</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation><numerusform>%n nap</numerusform><numerusform>%n nap</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation><numerusform>%n hét</numerusform><numerusform>%n hét</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 and %2</source>
-        <translation>%1 és %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation><numerusform>%n év</numerusform><numerusform>%n év</numerusform></translation>
     </message>
     <message>
         <source>%1 behind</source>
@@ -363,7 +339,7 @@
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>Tárca &lt;b&gt;kódolva&lt;/b&gt; és jelenleg &lt;b&gt;zárva&lt;/b&gt;.</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>CoinControlDialog</name>
     <message>
@@ -381,10 +357,6 @@
     <message>
         <source>Amount:</source>
         <translation>Összeg:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioritás:</translation>
     </message>
     <message>
         <source>Fee:</source>
@@ -437,10 +409,6 @@
     <message>
         <source>Confirmed</source>
         <translation>Megerősítve</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation>Prioritás</translation>
     </message>
     </context>
 <context>
@@ -533,6 +501,21 @@
     <message numerus="yes">
         <source>%n GB of free space available</source>
         <translation><numerusform>%n GB elérhető szabad hely</numerusform><numerusform>%n GB elérhető szabad hely</numerusform></translation>
+    </message>
+    </context>
+<context>
+    <name>ModalOverlay</name>
+    <message>
+        <source>Form</source>
+        <translation>Űrlap</translation>
+    </message>
+    <message>
+        <source>Last block time</source>
+        <translation>Utolsó blokk ideje</translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation>Elrejtés</translation>
     </message>
     </context>
 <context>
@@ -773,11 +756,7 @@
         <source>User Agent</source>
         <translation>User Agent</translation>
     </message>
-    <message>
-        <source>Ping Time</source>
-        <translation>Ping idő</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>QObject</name>
     <message>
@@ -816,7 +795,17 @@
         <source>%1 ms</source>
         <translation>%1 ms</translation>
     </message>
-</context>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 és %2</translation>
+    </message>
+    </context>
+<context>
+    <name>QObject::QObject</name>
+    </context>
+<context>
+    <name>QRImageWidget</name>
+    </context>
 <context>
     <name>QRImageWidget</name>
     </context>
@@ -1135,10 +1124,6 @@
         <translation>Összeg:</translation>
     </message>
     <message>
-        <source>Priority:</source>
-        <translation>Prioritás:</translation>
-    </message>
-    <message>
         <source>Fee:</source>
         <translation>Díjak:</translation>
     </message>
@@ -1404,10 +1389,6 @@
 </translation>
     </message>
     <message>
-        <source>Accept connections from outside (default: 1 if no -proxy or -connect)</source>
-        <translation>Kívülről érkező kapcsolatok elfogadása (alapértelmezett: 1, ha nem használt a -proxy vagy a -connect)</translation>
-    </message>
-    <message>
         <source>UFO Core</source>
         <translation>UFO Core</translation>
     </message>
@@ -1418,10 +1399,6 @@
     <message>
         <source>Use UPnP to map the listening port (default: 1 when listening and no -proxy)</source>
         <translation>UPnP használata porttovábbításra (alapértelmezett: 1, amikor kiszolgál és nem használt a -proxy)</translation>
-    </message>
-    <message>
-        <source>Connect only to the specified node(s)</source>
-        <translation>Csatlakozás csak a megadott csomóponthoz</translation>
     </message>
     <message>
         <source>Corrupted block database detected</source>
@@ -1520,10 +1497,6 @@
         <translation>Tranzakció összege túl alacsony</translation>
     </message>
     <message>
-        <source>Transaction amounts must be positive</source>
-        <translation>Tranzakció összege pozitív kell legyen</translation>
-    </message>
-    <message>
         <source>Transaction too large</source>
         <translation>Túl nagy tranzakció</translation>
     </message>
@@ -1571,7 +1544,7 @@
     </message>
     <message>
         <source>Insufficient funds</source>
-        <translation>Nincs elég UFOod.</translation>
+        <translation>Nincs elég ufood.</translation>
     </message>
     <message>
         <source>Loading block index...</source>

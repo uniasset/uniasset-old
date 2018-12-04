@@ -1,19 +1,22 @@
-*.tar.gz
-Jenkinsfile
 m8*
-src/test*
-src/qt/uniasset-qt
-src/uniasset-cli
-src/uniasset-tx
-src/uniassetd
+conflicts*
 help*
+depends.*
+src/test.txt
+
+*.tar.gz
 
 *.exe
 src/uniasset
 src/ufod
 src/uniasset-cli
 src/uniasset-tx
+src/ufo
+src/ufod
+src/ufo-cli
+src/ufo-tx
 src/test/test_bitcoin
+src/test/test_bitcoin_fuzzy
 src/qt/test/test_bitcoin-qt
 src/omnicored
 src/omnicore-cli
@@ -93,7 +96,7 @@ src/qt/test/moc*.cpp
 *.qm
 Makefile
 uniasset-qt
-UFOmnicore-Qt.app
+uniasset-Qt.app
 
 # Unit-tests
 Makefile.test
@@ -101,6 +104,12 @@ uniasset-qt_test
 bitcoin-qt_test
 omnicore-qt_test
 
+ufo-qt
+UFO-Qt.app
+
+# Unit-tests
+Makefile.test
+ufo-qt_test
 src/test/buildenv.py
 
 # Resources cpp
@@ -127,13 +136,8 @@ coverage_percent.txt
 linux-coverage-build
 linux-build
 win32-build
-qa/pull-tester/run-bitcoind-for-test.sh
 qa/pull-tester/tests_config.py
-qa/pull-tester/cache/*
-qa/pull-tester/test.*/*
-qa/tmp
-cache/
-share/BitcoindComparisonTool.jar
+qa/cache/*
 
 !src/leveldb*/Makefile
 
@@ -142,5 +146,8 @@ share/BitcoindComparisonTool.jar
 libbitcoinconsensus.pc
 contrib/devtools/split-debug.sh
 
-/depends
-/depends.*
+
+bin
+.bitcoin
+.tx
+qa/tmp/*

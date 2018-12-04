@@ -6,11 +6,14 @@
 
 #include "chain.h"
 #include "chainparams.h"
-#include "main.h"
+#include "validation.h"
 #include "sync.h"
 
 #include <stdint.h>
 #include <string>
+
+//extern CCriticalSection cs_tally;
+
 
 namespace mastercore
 {
@@ -20,6 +23,7 @@ namespace mastercore
 int GetHeight()
 {
     LOCK(cs_main);
+//    LOCK(cs_tally);
     return chainActive.Height();
 }
 

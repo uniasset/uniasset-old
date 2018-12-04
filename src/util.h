@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2009-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -43,14 +43,12 @@ public:
     boost::signals2::signal<std::string (const char* psz)> Translate;
 };
 
-extern std::map<std::string, std::string> mapArgs;
-extern std::map<std::string, std::vector<std::string> > mapMultiArgs;
+extern /*const*/ std::map<std::string, std::vector<std::string> >& mapMultiArgs;
 extern bool fDebug;
 extern bool fPrintToConsole;
 extern bool fPrintToDebugLog;
-extern bool fServer;
-extern std::string strMiscWarning;
 extern unsigned int nNeoScryptOptions;
+
 extern bool fLogTimestamps;
 extern bool fLogTimeMicros;
 extern bool fLogIPs;
@@ -81,41 +79,26 @@ bool LogAcceptCategory(const char* category);
 /** Send a string to the log output */
 int LogPrintStr(const std::string &str);
 
-#define LogPrintf(...) LogPrint(NULL, __VA_ARGS__)
+#define LogPrint(category, ...) do { \
+    if (LogAcceptCategory((category))) { \
+        LogPrintStr(tfm::format(__VA_ARGS__)); \
+    } \
+} while(0)
 
-template<typename T1, typename... Args>
-static inline int LogPrint(const char* category, const char* fmt, const T1& v1, const Args&... args)
-{
-    if(!LogAcceptCategory(category)) return 0;                            \
-    return LogPrintStr(tfm::format(fmt, v1, args...));
-}
+#define LogPrintf(...) do { \
+    LogPrintStr(tfm::format(__VA_ARGS__)); \
+} while(0)
 
-template<typename T1, typename... Args>
-bool error(const char* fmt, const T1& v1, const Args&... args)
+template<typename... Args>
+bool error(const char* fmt, const Args&... args)
 {
-    LogPrintStr("ERROR: " + tfm::format(fmt, v1, args...) + "\n");
-    return false;
-}
-
-/**
- * Zero-arg versions of logging and error, these are not covered by
- * the variadic templates above (and don't take format arguments but
- * bare strings).
- */
-static inline int LogPrint(const char* category, const char* s)
-{
-    if(!LogAcceptCategory(category)) return 0;
-    return LogPrintStr(s);
-}
-static inline bool error(const char* s)
-{
-    LogPrintStr(std::string("ERROR: ") + s + "\n");
+    LogPrintStr("ERROR: " + tfm::format(fmt, args...) + "\n");
     return false;
 }
 
 void PrintExceptionContinue(const std::exception *pex, const char* pszThread);
 void ParseParameters(int argc, const char*const argv[]);
-void FileCommit(FILE *fileout);
+void FileCommit(FILE *file);
 bool TruncateFile(FILE *file, unsigned int length);
 int RaiseFileDescriptorLimit(int nMinFD);
 void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length);
@@ -124,12 +107,12 @@ bool TryCreateDirectory(const boost::filesystem::path& p);
 boost::filesystem::path GetDefaultDataDir();
 const boost::filesystem::path &GetDataDir(bool fNetSpecific = true);
 void ClearDatadirCache();
-boost::filesystem::path GetConfigFile();
+boost::filesystem::path GetConfigFile(const std::string& confPath);
 #ifndef WIN32
 boost::filesystem::path GetPidFile();
 void CreatePidFile(const boost::filesystem::path &path, pid_t pid);
 #endif
-void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet, std::map<std::string, std::vector<std::string> >& mapMultiSettingsRet);
+void ReadConfigFile(const std::string& confPath);
 #ifdef WIN32
 boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 #endif
@@ -145,6 +128,14 @@ inline bool IsSwitchChar(char c)
     return c == '-';
 #endif
 }
+
+/**
+ * Return true if the given argument has been manually set
+ *
+ * @param strArg Argument to get (e.g. "-foo")
+ * @return true if the argument has been set
+ */
+bool IsArgSet(const std::string& strArg);
 
 /**
  * Return string argument or default value
@@ -190,6 +181,9 @@ bool SoftSetArg(const std::string& strArg, const std::string& strValue);
  * @return true if argument gets set, false if it already had a value
  */
 bool SoftSetBoolArg(const std::string& strArg, bool fValue);
+
+// Forces a arg setting, used only in testing
+void ForceSetArg(const std::string& strArg, const std::string& strValue);
 
 /**
  * Format a string to be used as group of options in help messages

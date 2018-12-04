@@ -2,7 +2,7 @@
 
 #include "omnicore/createtx.h"
 #include "omnicore/parse_string.h"
-#include "omnicore/wallettxs.h"
+#include "omnicore/walletutils.h"
 
 #include "base58.h"
 #include "core_io.h"
@@ -171,16 +171,17 @@ uint8_t ParseMetaDExAction(const UniValue& value)
     return static_cast<uint8_t>(action);
 }
 
-CTransaction ParseTransaction(const UniValue& value)
+CTransaction /* don't ref */ ParseTransaction(const UniValue& value)
 {
-    CTransaction tx;
+    CMutableTransaction mtx;
+    //CTransaction tx;
     if (value.isNull() || value.get_str().empty()) {
-        return tx;
+        return CTransaction( mtx ); // MakeMutableTransaction( mtx );; //tx;
     }
-    if (!DecodeHexTx(tx, value.get_str())) {
+    if ( !DecodeHexTx(mtx, value.get_str()) ) {
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Transaction deserialization failed");
     }
-    return tx;
+    return CTransaction( mtx );
 }
 
 CMutableTransaction ParseMutableTransaction(const UniValue& value)

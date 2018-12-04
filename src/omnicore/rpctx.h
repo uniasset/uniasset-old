@@ -3,25 +3,27 @@
 
 #include <univalue.h>
 
-UniValue omni_sendrawtx(const UniValue& params, bool fHelp);
-UniValue omni_send(const UniValue& params, bool fHelp);
-UniValue omni_sendall(const UniValue& params, bool fHelp);
-UniValue omni_senddexsell(const UniValue& params, bool fHelp);
-UniValue omni_senddexaccept(const UniValue& params, bool fHelp);
-UniValue omni_sendissuancecrowdsale(const UniValue& params, bool fHelp);
-UniValue omni_sendissuancefixed(const UniValue& params, bool fHelp);
-UniValue omni_sendissuancemanaged(const UniValue& params, bool fHelp);
-UniValue omni_sendsto(const UniValue& params, bool fHelp);
-UniValue omni_sendgrant(const UniValue& params, bool fHelp);
-UniValue omni_sendrevoke(const UniValue& params, bool fHelp);
-UniValue omni_sendclosecrowdsale(const UniValue& params, bool fHelp);
-UniValue trade_MP(const UniValue& params, bool fHelp);
-UniValue omni_sendtrade(const UniValue& params, bool fHelp);
-UniValue omni_sendcanceltradesbyprice(const UniValue& params, bool fHelp);
-UniValue omni_sendcanceltradesbypair(const UniValue& params, bool fHelp);
-UniValue omni_sendcancelalltrades(const UniValue& params, bool fHelp);
-UniValue omni_sendchangeissuer(const UniValue& params, bool fHelp);
-UniValue omni_sendactivation(const UniValue& params, bool fHelp);
-UniValue omni_sendalert(const UniValue& params, bool fHelp);
+#include "rpc/server.h"
+
+UniValue omni_sendrawtx(const JSONRPCRequest& rq);
+UniValue omni_send(const JSONRPCRequest& rq);
+UniValue omni_sendall(const JSONRPCRequest& rq);
+UniValue omni_senddexsell(const JSONRPCRequest& rq);
+UniValue omni_senddexaccept(const JSONRPCRequest& rq);
+UniValue omni_sendissuancecrowdsale(const JSONRPCRequest& rq);
+UniValue omni_sendissuancefixed(const JSONRPCRequest& rq);
+UniValue omni_sendissuancemanaged(const JSONRPCRequest& rq);
+UniValue omni_sendsto(const JSONRPCRequest& rq);
+UniValue omni_sendgrant(const JSONRPCRequest& rq);
+UniValue omni_sendrevoke(const JSONRPCRequest& rq);
+UniValue omni_sendclosecrowdsale(const JSONRPCRequest& rq);
+UniValue trade_MP(const JSONRPCRequest& rq);
+UniValue omni_sendtrade(const JSONRPCRequest& rq);
+UniValue omni_sendcanceltradesbyprice(const JSONRPCRequest& rq);
+UniValue omni_sendcanceltradesbypair(const JSONRPCRequest& rq);
+UniValue omni_sendcancelalltrades(const JSONRPCRequest& rq);
+UniValue omni_sendchangeissuer(const JSONRPCRequest& rq);
+UniValue omni_sendactivation(const JSONRPCRequest& rq);
+UniValue omni_sendalert(const JSONRPCRequest& rq);
 
 #endif // OMNICORE_RPCTX

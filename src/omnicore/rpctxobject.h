@@ -5,12 +5,14 @@
 
 #include <string>
 
+#include "primitives/transaction.h"
+
 class uint256;
 class CMPTransaction;
 class CTransaction;
 
 int populateRPCTransactionObject(const uint256& txid, UniValue& txobj, std::string filterAddress = "", bool extendedDetails = false, std::string extendedDetailsFilter = "");
-int populateRPCTransactionObject(const CTransaction& tx, const uint256& blockHash, UniValue& txobj, std::string filterAddress = "", bool extendedDetails = false, std::string extendedDetailsFilter = "", int blockHeight = 0);
+int populateRPCTransactionObject(const CTransactionRef& tx, const uint256& blockHash, UniValue& txobj, std::string filterAddress = "", bool extendedDetails = false, std::string extendedDetailsFilter = "", int blockHeight = 0);
 
 void populateRPCTypeInfo(CMPTransaction& mp_obj, UniValue& txobj, uint32_t txType, bool extendedDetails, std::string extendedDetailsFilter, int confirmations);
 
@@ -31,12 +33,16 @@ void populateRPCTypeGrant(CMPTransaction& omniObj, UniValue& txobj);
 void populateRPCTypeRevoke(CMPTransaction& omniOobj, UniValue& txobj);
 void populateRPCTypeChangeIssuer(CMPTransaction& omniObj, UniValue& txobj);
 void populateRPCTypeActivation(CMPTransaction& omniObj, UniValue& txobj);
+void populateRPCTypeEnableFreezing(CMPTransaction& omniObj, UniValue& txobj);
+void populateRPCTypeDisableFreezing(CMPTransaction& omniObj, UniValue& txobj);
+void populateRPCTypeFreezeTokens(CMPTransaction& omniObj, UniValue& txobj);
+void populateRPCTypeUnfreezeTokens(CMPTransaction& omniObj, UniValue& txobj);
 
 void populateRPCExtendedTypeSendToOwners(const uint256 txid, std::string extendedDetailsFilter, UniValue& txobj, uint16_t version);
 void populateRPCExtendedTypeMetaDExTrade(const uint256& txid, uint32_t propertyIdForSale, int64_t amountForSale, UniValue& txobj);
 void populateRPCExtendedTypeMetaDExCancel(const uint256& txid, UniValue& txobj);
 
-int populateRPCDExPurchases(const CTransaction& wtx, UniValue& purchases, std::string filterAddress);
+int populateRPCDExPurchases(const CTransactionRef& wtx, UniValue& purchases, std::string filterAddress);
 int populateRPCSendAllSubSends(const uint256& txid, UniValue& subSends);
 
 bool showRefForTx(uint32_t txType);

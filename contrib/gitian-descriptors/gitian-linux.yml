@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD
 name: "omnicore-linux-0.13"
+=======
+name: "bitcoin-linux-0.14"
+>>>>>>> b34656a2d0dd4f5f9c5070da7123a584d2752a51
 enable_cache: true
 suites:
 - "trusty"

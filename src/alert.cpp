@@ -3,15 +3,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "alert.h"
+#include <alert.h>
 
-#include "clientversion.h"
-#include "net.h"
-#include "pubkey.h"
-#include "timedata.h"
-#include "ui_interface.h"
-#include "util.h"
-#include "utilstrencodings.h"
+#include <clientversion.h>
+#include <net.h>
+#include <pubkey.h>
+#include <timedata.h>
+#include <ui_interface.h>
+#include <util.h>
+#include <utilstrencodings.h>
+#include <netmessagemaker.h>
 
 #include <stdint.h>
 #include <algorithm>
@@ -19,7 +20,6 @@
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 
 using namespace std;
@@ -48,10 +48,10 @@ void CUnsignedAlert::SetNull()
 std::string CUnsignedAlert::ToString() const
 {
     std::string strSetCancel;
-    BOOST_FOREACH(int n, setCancel)
+    for(int n : setCancel)
         strSetCancel += strprintf("%d ", n);
     std::string strSetSubVer;
-    BOOST_FOREACH(const std::string& str, setSubVer)
+    for(const std::string& str : setSubVer)
         strSetSubVer += "\"" + str + "\" ";
     return strprintf(
         "CAlert(\n"
@@ -126,6 +126,8 @@ bool CAlert::AppliesToMe() const
 
 bool CAlert::RelayTo(CNode* pnode) const
 {
+    const CNetMsgMaker msgMaker(pnode->GetSendVersion());
+
     if (!IsInEffect())
         return false;
     // don't relay to nodes which haven't sent their version message
@@ -138,7 +140,8 @@ bool CAlert::RelayTo(CNode* pnode) const
             AppliesToMe() ||
             GetAdjustedTime() < nRelayUntil)
         {
-            pnode->PushMessage(NetMsgType::ALERT, *this);
+            CConnman& connman = *g_connman;
+            connman.PushMessage(pnode, msgMaker.Make(NetMsgType::ALERT, *this));
             return true;
         }
     }
@@ -206,13 +209,11 @@ bool CAlert::ProcessAlert(const std::vector<unsigned char>& alertKey, bool fThre
             const CAlert& alert = (*mi).second;
             if (Cancels(alert))
             {
-                LogPrint("alert", "cancelling alert %d\n", alert.nID);
                 uiInterface.NotifyAlertChanged((*mi).first, CT_DELETED);
                 mapAlerts.erase(mi++);
             }
             else if (!alert.IsInEffect())
             {
-                LogPrint("alert", "expiring alert %d\n", alert.nID);
                 uiInterface.NotifyAlertChanged((*mi).first, CT_DELETED);
                 mapAlerts.erase(mi++);
             }
@@ -221,14 +222,11 @@ bool CAlert::ProcessAlert(const std::vector<unsigned char>& alertKey, bool fThre
         }
 
         // Check if this alert has been cancelled
-        BOOST_FOREACH(PAIRTYPE(const uint256, CAlert)& item, mapAlerts)
+        for (auto& item : mapAlerts)
         {
             const CAlert& alert = item.second;
             if (alert.Cancels(*this))
-            {
-                LogPrint("alert", "alert already cancelled by %d\n", alert.nID);
                 return false;
-            }
         }
 
         // Add to mapAlerts
@@ -241,12 +239,10 @@ bool CAlert::ProcessAlert(const std::vector<unsigned char>& alertKey, bool fThre
         }
     }
 
-    LogPrint("alert", "accepted alert %d, AppliesToMe()=%d\n", nID, AppliesToMe());
     return true;
 }
 
-void
-CAlert::Notify(const std::string& strMessage, bool fThread)
+void CAlert::Notify(const std::string& strMessage, bool fThread)
 {
     std::string strCmd = GetArg("-alertnotify", "");
     if (strCmd.empty()) return;

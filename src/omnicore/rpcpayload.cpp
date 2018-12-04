@@ -15,13 +15,15 @@
 using std::runtime_error;
 using namespace mastercore;
 
-UniValue omni_createpayload_simplesend(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_simplesend(const JSONRPCRequest& rq)
 {
-   if (fHelp || params.size() != 2)
+   if (rq.fHelp || rq.params.size() != 2)
         throw runtime_error(
             "omni_createpayload_simplesend propertyid \"amount\"\n"
 
             "\nCreate the payload for a simple send transaction.\n"
+
+            "\nNote: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!\n"
 
             "\nArguments:\n"
             "1. propertyid           (number, required) the identifier of the tokens to send\n"
@@ -35,18 +37,17 @@ UniValue omni_createpayload_simplesend(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_simplesend", "1, \"100.0\"")
         );
 
-    uint32_t propertyId = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyId);
-    int64_t amount = ParseAmount(params[1], isPropertyDivisible(propertyId));
+    uint32_t propertyId = ParsePropertyId(rq.params[0]);
+    int64_t amount = ParseAmount(rq.params[1], isPropertyDivisible(propertyId));
 
     std::vector<unsigned char> payload = CreatePayload_SimpleSend(propertyId, amount);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_sendall(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_sendall(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 1)
+    if (rq.fHelp || rq.params.size() != 1)
         throw runtime_error(
             "omni_createpayload_sendall ecosystem\n"
 
@@ -63,16 +64,16 @@ UniValue omni_createpayload_sendall(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_sendall", "2")
         );
 
-    uint8_t ecosystem = ParseEcosystem(params[0]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[0]);
 
     std::vector<unsigned char> payload = CreatePayload_SendAll(ecosystem);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_dexsell(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_dexsell(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 6)
+    if (rq.fHelp || rq.params.size() != 6)
         throw runtime_error(
             "omni_createpayload_dexsell propertyidforsale \"amountforsale\" \"amountdesired\" paymentwindow minacceptfee action\n"
 
@@ -95,8 +96,8 @@ UniValue omni_createpayload_dexsell(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_dexsell", "1, \"1.5\", \"0.75\", 25, \"0.0005\", 1")
         );
 
-    uint32_t propertyIdForSale = ParsePropertyId(params[0]);
-    uint8_t action = ParseDExAction(params[5]);
+    uint32_t propertyIdForSale = ParsePropertyId(rq.params[0]);
+    uint8_t action = ParseDExAction(rq.params[5]);
 
     int64_t amountForSale = 0; // depending on action
     int64_t amountDesired = 0; // depending on action
@@ -104,10 +105,10 @@ UniValue omni_createpayload_dexsell(const UniValue& params, bool fHelp)
     int64_t minAcceptFee = 0;  // depending on action
 
     if (action <= CMPTransaction::UPDATE) { // actions 3 permit zero values, skip check
-        amountForSale = ParseAmount(params[1], true); // TMSC/MSC is divisible
-        amountDesired = ParseAmount(params[2], true); // BTC is divisible
-        paymentWindow = ParseDExPaymentWindow(params[3]);
-        minAcceptFee = ParseDExFee(params[4]);
+        amountForSale = ParseAmount(rq.params[1], true); // TMSC/MSC is divisible
+        amountDesired = ParseAmount(rq.params[2], true); // BTC is divisible
+        paymentWindow = ParseDExPaymentWindow(rq.params[3]);
+        minAcceptFee = ParseDExFee(rq.params[4]);
     }
 
     std::vector<unsigned char> payload = CreatePayload_DExSell(propertyIdForSale, amountForSale, amountDesired, paymentWindow, minAcceptFee, action);
@@ -115,13 +116,15 @@ UniValue omni_createpayload_dexsell(const UniValue& params, bool fHelp)
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_dexaccept(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_dexaccept(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 2)
+    if (rq.fHelp || rq.params.size() != 2)
         throw runtime_error(
-            "omni_senddexaccept propertyid \"amount\"\n"
+            "omni_createpayload_dexaccept propertyid \"amount\"\n"
 
             "\nCreate the payload for an accept offer for the specified token and amount.\n"
+
+            "\nNote: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!\n"
 
             "\nArguments:\n"
             "1. propertyid           (number, required) the identifier of the token to purchase\n"
@@ -135,22 +138,23 @@ UniValue omni_createpayload_dexaccept(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_dexaccept", "1, \"15.0\"")
         );
 
-    uint32_t propertyId = ParsePropertyId(params[0]);
-    RequirePrimaryToken(propertyId);
-    int64_t amount = ParseAmount(params[1], true);
+    uint32_t propertyId = ParsePropertyId(rq.params[0]);
+    int64_t amount = ParseAmount(rq.params[1], isPropertyDivisible(propertyId));
 
     std::vector<unsigned char> payload = CreatePayload_DExAccept(propertyId, amount);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_sto(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_sto(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 2 || params.size() > 3)
+    if (rq.fHelp || rq.params.size() < 2 || rq.params.size() > 3)
         throw runtime_error(
             "omni_createpayload_sto propertyid \"amount\" ( distributionproperty )\n"
 
             "\nCreates the payload for a send-to-owners transaction.\n"
+
+            "\nNote: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!\n"
 
             "\nArguments:\n"
             "1. propertyid             (number, required) the identifier of the tokens to distribute\n"
@@ -164,19 +168,18 @@ UniValue omni_createpayload_sto(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_sto", "3, \"5000\"")
         );
 
-    uint32_t propertyId = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyId);
-    int64_t amount = ParseAmount(params[1], isPropertyDivisible(propertyId));
-    uint32_t distributionPropertyId = (params.size() > 2) ? ParsePropertyId(params[2]) : propertyId;
+    uint32_t propertyId = ParsePropertyId(rq.params[0]);
+    int64_t amount = ParseAmount(rq.params[1], isPropertyDivisible(propertyId));
+    uint32_t distributionPropertyId = (rq.params.size() > 2) ? ParsePropertyId(rq.params[2]) : propertyId;
 
     std::vector<unsigned char> payload = CreatePayload_SendToOwners(propertyId, amount, distributionPropertyId);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_issuancefixed(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_issuancefixed(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 9)
+    if (rq.fHelp || rq.params.size() != 9)
         throw runtime_error(
             "omni_createpayload_issuancefixed ecosystem type previousid \"category\" \"subcategory\" \"name\" \"url\" \"data\" \"amount\"\n"
 
@@ -201,15 +204,15 @@ UniValue omni_createpayload_issuancefixed(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_issuancefixed", "2, 1, 0, \"Companies\", \"Ufobject Mining\", \"Quantum Miner\", \"\", \"\", \"1000000\"")
         );
 
-    uint8_t ecosystem = ParseEcosystem(params[0]);
-    uint16_t type = ParsePropertyType(params[1]);
-    uint32_t previousId = ParsePreviousPropertyId(params[2]);
-    std::string category = ParseText(params[3]);
-    std::string subcategory = ParseText(params[4]);
-    std::string name = ParseText(params[5]);
-    std::string url = ParseText(params[6]);
-    std::string data = ParseText(params[7]);
-    int64_t amount = ParseAmount(params[8], type);
+    uint8_t ecosystem = ParseEcosystem(rq.params[0]);
+    uint16_t type = ParsePropertyType(rq.params[1]);
+    uint32_t previousId = ParsePreviousPropertyId(rq.params[2]);
+    std::string category = ParseText(rq.params[3]);
+    std::string subcategory = ParseText(rq.params[4]);
+    std::string name = ParseText(rq.params[5]);
+    std::string url = ParseText(rq.params[6]);
+    std::string data = ParseText(rq.params[7]);
+    int64_t amount = ParseAmount(rq.params[8], type);
 
     RequirePropertyName(name);
 
@@ -218,9 +221,9 @@ UniValue omni_createpayload_issuancefixed(const UniValue& params, bool fHelp)
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_issuancecrowdsale(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_issuancecrowdsale(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 13)
+    if (rq.fHelp || rq.params.size() != 13)
         throw runtime_error(
             "omni_createpayload_issuancecrowdsale ecosystem type previousid \"category\" \"subcategory\" \"name\" \"url\" \"data\" propertyiddesired tokensperunit deadline earlybonus issuerpercentage\n"
 
@@ -249,22 +252,21 @@ UniValue omni_createpayload_issuancecrowdsale(const UniValue& params, bool fHelp
             + HelpExampleRpc("omni_createpayload_issuancecrowdsale", "2, 1, 0, \"Companies\", \"Ufobject Mining\", \"Quantum Miner\", \"\", \"\", 2, \"100\", 1483228800, 30, 2")
         );
 
-    uint8_t ecosystem = ParseEcosystem(params[0]);
-    uint16_t type = ParsePropertyType(params[1]);
-    uint32_t previousId = ParsePreviousPropertyId(params[2]);
-    std::string category = ParseText(params[3]);
-    std::string subcategory = ParseText(params[4]);
-    std::string name = ParseText(params[5]);
-    std::string url = ParseText(params[6]);
-    std::string data = ParseText(params[7]);
-    uint32_t propertyIdDesired = ParsePropertyId(params[8]);
-    int64_t numTokens = ParseAmount(params[9], type);
-    int64_t deadline = ParseDeadline(params[10]);
-    uint8_t earlyBonus = ParseEarlyBirdBonus(params[11]);
-    uint8_t issuerPercentage = ParseIssuerBonus(params[12]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[0]);
+    uint16_t type = ParsePropertyType(rq.params[1]);
+    uint32_t previousId = ParsePreviousPropertyId(rq.params[2]);
+    std::string category = ParseText(rq.params[3]);
+    std::string subcategory = ParseText(rq.params[4]);
+    std::string name = ParseText(rq.params[5]);
+    std::string url = ParseText(rq.params[6]);
+    std::string data = ParseText(rq.params[7]);
+    uint32_t propertyIdDesired = ParsePropertyId(rq.params[8]);
+    int64_t numTokens = ParseAmount(rq.params[9], type);
+    int64_t deadline = ParseDeadline(rq.params[10]);
+    uint8_t earlyBonus = ParseEarlyBirdBonus(rq.params[11]);
+    uint8_t issuerPercentage = ParseIssuerBonus(rq.params[12]);
 
     RequirePropertyName(name);
-    RequireExistingProperty(propertyIdDesired);
     RequireSameEcosystem(ecosystem, propertyIdDesired);
 
     std::vector<unsigned char> payload = CreatePayload_IssuanceVariable(ecosystem, type, previousId, category, subcategory, name, url, data, propertyIdDesired, numTokens, deadline, earlyBonus, issuerPercentage);
@@ -272,9 +274,9 @@ UniValue omni_createpayload_issuancecrowdsale(const UniValue& params, bool fHelp
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_issuancemanaged(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_issuancemanaged(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 8)
+    if (rq.fHelp || rq.params.size() != 8)
         throw runtime_error(
             "omni_createpayload_issuancemanaged ecosystem type previousid \"category\" \"subcategory\" \"name\" \"url\" \"data\"\n"
 
@@ -298,14 +300,14 @@ UniValue omni_createpayload_issuancemanaged(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_issuancemanaged", "2, 1, 0, \"Companies\", \"Ufobject Mining\", \"Quantum Miner\", \"\", \"\"")
         );
 
-    uint8_t ecosystem = ParseEcosystem(params[0]);
-    uint16_t type = ParsePropertyType(params[1]);
-    uint32_t previousId = ParsePreviousPropertyId(params[2]);
-    std::string category = ParseText(params[3]);
-    std::string subcategory = ParseText(params[4]);
-    std::string name = ParseText(params[5]);
-    std::string url = ParseText(params[6]);
-    std::string data = ParseText(params[7]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[0]);
+    uint16_t type = ParsePropertyType(rq.params[1]);
+    uint32_t previousId = ParsePreviousPropertyId(rq.params[2]);
+    std::string category = ParseText(rq.params[3]);
+    std::string subcategory = ParseText(rq.params[4]);
+    std::string name = ParseText(rq.params[5]);
+    std::string url = ParseText(rq.params[6]);
+    std::string data = ParseText(rq.params[7]);
 
     RequirePropertyName(name);
 
@@ -314,9 +316,9 @@ UniValue omni_createpayload_issuancemanaged(const UniValue& params, bool fHelp)
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_closecrowdsale(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_closecrowdsale(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 1)
+    if (rq.fHelp || rq.params.size() != 1)
         throw runtime_error(
             "omni_createpayload_closecrowdsale propertyid\n"
 
@@ -333,22 +335,22 @@ UniValue omni_createpayload_closecrowdsale(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_closecrowdsale", "70")
         );
 
-    uint32_t propertyId = ParsePropertyId(params[0]);
-
-    // checks bypassed because someone may wish to prepare the payload to close a crowdsale creation not yet broadcast
+    uint32_t propertyId = ParsePropertyId(rq.params[0]);
 
     std::vector<unsigned char> payload = CreatePayload_CloseCrowdsale(propertyId);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_grant(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_grant(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 2 || params.size() > 3)
+    if (rq.fHelp || rq.params.size() < 2 || rq.params.size() > 3)
         throw runtime_error(
             "omni_createpayload_grant propertyid \"amount\" ( \"memo\" )\n"
 
             "\nCreates the payload to issue or grant new units of managed tokens.\n"
+
+            "\nNote: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!\n"
 
             "\nArguments:\n"
             "1. propertyid           (number, required) the identifier of the tokens to grant\n"
@@ -363,24 +365,24 @@ UniValue omni_createpayload_grant(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_grant", "51, \"7000\"")
         );
 
-    uint32_t propertyId = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyId);
-    RequireManagedProperty(propertyId);
-    int64_t amount = ParseAmount(params[1], isPropertyDivisible(propertyId));
-    std::string memo = (params.size() > 2) ? ParseText(params[2]): "";
+    uint32_t propertyId = ParsePropertyId(rq.params[0]);
+    int64_t amount = ParseAmount(rq.params[1], isPropertyDivisible(propertyId));
+    std::string memo = (rq.params.size() > 2) ? ParseText(rq.params[2]): "";
 
     std::vector<unsigned char> payload = CreatePayload_Grant(propertyId, amount, memo);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_revoke(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_revoke(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() < 2 || params.size() > 3)
+    if (rq.fHelp || rq.params.size() < 2 || rq.params.size() > 3)
         throw runtime_error(
             "omni_createpayload_revoke propertyid \"amount\" ( \"memo\" )\n"
 
             "\nCreates the payload to revoke units of managed tokens.\n"
+
+            "\nNote: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!\n"
 
             "\nArguments:\n"
             "1. propertyid           (number, required) the identifier of the tokens to revoke\n"
@@ -395,20 +397,18 @@ UniValue omni_createpayload_revoke(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_revoke", "51, \"100\"")
         );
 
-    uint32_t propertyId = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyId);
-    RequireManagedProperty(propertyId);
-    int64_t amount = ParseAmount(params[1], isPropertyDivisible(propertyId));
-    std::string memo = (params.size() > 2) ? ParseText(params[2]): "";
+    uint32_t propertyId = ParsePropertyId(rq.params[0]);
+    int64_t amount = ParseAmount(rq.params[1], isPropertyDivisible(propertyId));
+    std::string memo = (rq.params.size() > 2) ? ParseText(rq.params[2]): "";
 
     std::vector<unsigned char> payload = CreatePayload_Revoke(propertyId, amount, memo);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_changeissuer(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_changeissuer(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 1)
+    if (rq.fHelp || rq.params.size() != 1)
         throw runtime_error(
             "omni_createpayload_changeissuer propertyid\n"
 
@@ -425,21 +425,22 @@ UniValue omni_createpayload_changeissuer(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_changeissuer", "3")
         );
 
-    uint32_t propertyId = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyId);
+    uint32_t propertyId = ParsePropertyId(rq.params[0]);
 
     std::vector<unsigned char> payload = CreatePayload_ChangeIssuer(propertyId);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_trade(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_trade(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 4)
+    if (rq.fHelp || rq.params.size() != 4)
         throw runtime_error(
             "omni_createpayload_trade propertyidforsale \"amountforsale\" propertiddesired \"amountdesired\"\n"
 
             "\nCreates the payload to place a trade offer on the distributed token exchange.\n"
+
+            "\nNote: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!\n"
 
             "\nArguments:\n"
             "1. propertyidforsale    (number, required) the identifier of the tokens to list for sale\n"
@@ -455,12 +456,10 @@ UniValue omni_createpayload_trade(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_trade", "31, \"250.0\", 1, \"10.0\"")
         );
 
-    uint32_t propertyIdForSale = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyIdForSale);
-    int64_t amountForSale = ParseAmount(params[1], isPropertyDivisible(propertyIdForSale));
-    uint32_t propertyIdDesired = ParsePropertyId(params[2]);
-    RequireExistingProperty(propertyIdDesired);
-    int64_t amountDesired = ParseAmount(params[3], isPropertyDivisible(propertyIdDesired));
+    uint32_t propertyIdForSale = ParsePropertyId(rq.params[0]);
+    int64_t amountForSale = ParseAmount(rq.params[1], isPropertyDivisible(propertyIdForSale));
+    uint32_t propertyIdDesired = ParsePropertyId(rq.params[2]);
+    int64_t amountDesired = ParseAmount(rq.params[3], isPropertyDivisible(propertyIdDesired));
     RequireSameEcosystem(propertyIdForSale, propertyIdDesired);
     RequireDifferentIds(propertyIdForSale, propertyIdDesired);
     RequireDifferentIds(propertyIdForSale, propertyIdDesired);
@@ -470,13 +469,15 @@ UniValue omni_createpayload_trade(const UniValue& params, bool fHelp)
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_canceltradesbyprice(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_canceltradesbyprice(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 4)
+    if (rq.fHelp || rq.params.size() != 4)
         throw runtime_error(
             "omni_createpayload_canceltradesbyprice propertyidforsale \"amountforsale\" propertiddesired \"amountdesired\"\n"
 
             "\nCreates the payload to cancel offers on the distributed token exchange with the specified price.\n"
+
+            "\nNote: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!\n"
 
             "\nArguments:\n"
             "1. propertyidforsale    (number, required) the identifier of the tokens listed for sale\n"
@@ -492,12 +493,10 @@ UniValue omni_createpayload_canceltradesbyprice(const UniValue& params, bool fHe
             + HelpExampleRpc("omni_createpayload_canceltradesbyprice", "31, \"100.0\", 1, \"5.0\"")
         );
 
-    uint32_t propertyIdForSale = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyIdForSale);
-    int64_t amountForSale = ParseAmount(params[1], isPropertyDivisible(propertyIdForSale));
-    uint32_t propertyIdDesired = ParsePropertyId(params[2]);
-    RequireExistingProperty(propertyIdDesired);
-    int64_t amountDesired = ParseAmount(params[3], isPropertyDivisible(propertyIdDesired));
+    uint32_t propertyIdForSale = ParsePropertyId(rq.params[0]);
+    int64_t amountForSale = ParseAmount(rq.params[1], isPropertyDivisible(propertyIdForSale));
+    uint32_t propertyIdDesired = ParsePropertyId(rq.params[2]);
+    int64_t amountDesired = ParseAmount(rq.params[3], isPropertyDivisible(propertyIdDesired));
     RequireSameEcosystem(propertyIdForSale, propertyIdDesired);
     RequireDifferentIds(propertyIdForSale, propertyIdDesired);
 
@@ -506,9 +505,9 @@ UniValue omni_createpayload_canceltradesbyprice(const UniValue& params, bool fHe
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_canceltradesbypair(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_canceltradesbypair(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 2)
+    if (rq.fHelp || rq.params.size() != 2)
         throw runtime_error(
             "omni_createpayload_canceltradesbypair propertyidforsale propertiddesired\n"
 
@@ -526,10 +525,8 @@ UniValue omni_createpayload_canceltradesbypair(const UniValue& params, bool fHel
             + HelpExampleRpc("omni_createpayload_canceltradesbypair", "1, 31")
         );
 
-    uint32_t propertyIdForSale = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyIdForSale);
-    uint32_t propertyIdDesired = ParsePropertyId(params[1]);
-    RequireExistingProperty(propertyIdDesired);
+    uint32_t propertyIdForSale = ParsePropertyId(rq.params[0]);
+    uint32_t propertyIdDesired = ParsePropertyId(rq.params[1]);
     RequireSameEcosystem(propertyIdForSale, propertyIdDesired);
     RequireDifferentIds(propertyIdForSale, propertyIdDesired);
 
@@ -538,9 +535,9 @@ UniValue omni_createpayload_canceltradesbypair(const UniValue& params, bool fHel
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_cancelalltrades(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_cancelalltrades(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 1)
+    if (rq.fHelp || rq.params.size() != 1)
         throw runtime_error(
             "omni_createpayload_cancelalltrades ecosystem\n"
 
@@ -557,16 +554,16 @@ UniValue omni_createpayload_cancelalltrades(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_cancelalltrades", "1")
         );
 
-    uint8_t ecosystem = ParseEcosystem(params[0]);
+    uint8_t ecosystem = ParseEcosystem(rq.params[0]);
 
     std::vector<unsigned char> payload = CreatePayload_MetaDExCancelEcosystem(ecosystem);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_enablefreezing(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_enablefreezing(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 1)
+    if (rq.fHelp || rq.params.size() != 1)
         throw runtime_error(
             "omni_createpayload_enablefreezing propertyid\n"
 
@@ -583,18 +580,16 @@ UniValue omni_createpayload_enablefreezing(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_enablefreezing", "3")
         );
 
-    uint32_t propertyId = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyId);
-    RequireManagedProperty(propertyId);
+    uint32_t propertyId = ParsePropertyId(rq.params[0]);
 
     std::vector<unsigned char> payload = CreatePayload_EnableFreezing(propertyId);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_disablefreezing(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_disablefreezing(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 1)
+    if (rq.fHelp || rq.params.size() != 1)
         throw runtime_error(
             "omni_createpayload_disablefreezing propertyid\n"
 
@@ -612,75 +607,71 @@ UniValue omni_createpayload_disablefreezing(const UniValue& params, bool fHelp)
             + HelpExampleRpc("omni_createpayload_disablefreezing", "3")
         );
 
-    uint32_t propertyId = ParsePropertyId(params[0]);
-    RequireExistingProperty(propertyId);
-    RequireManagedProperty(propertyId);
+    uint32_t propertyId = ParsePropertyId(rq.params[0]);
 
     std::vector<unsigned char> payload = CreatePayload_DisableFreezing(propertyId);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_freeze(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_freeze(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 3)
+    if (rq.fHelp || rq.params.size() != 3)
         throw runtime_error(
             "omni_createpayload_freeze \"toaddress\" propertyid amount \n"
 
             "\nCreates the payload to freeze an address for a centrally managed token.\n"
 
+            "\nNote: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!\n"
+
             "\nArguments:\n"
             "1. toaddress            (string, required) the address to freeze tokens for\n"
             "2. propertyid           (number, required) the property to freeze tokens for (must be managed type and have freezing option enabled)\n"
-            "3. amount               (number, required) the amount of tokens to freeze (note: this is unused - once frozen an address cannot send any transactions)\n"
+            "3. amount               (string, required) the amount of tokens to freeze (note: this is unused - once frozen an address cannot send any transactions)\n"
 
             "\nResult:\n"
             "\"payload\"             (string) the hex-encoded payload\n"
 
             "\nExamples:\n"
-            + HelpExampleCli("omni_createpayload_freeze", "\"3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs\" 1 0")
-            + HelpExampleRpc("omni_createpayload_freeze", "\"3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs\", 1, 0")
+            + HelpExampleCli("omni_createpayload_freeze", "\"3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs\" 1 \"100\"")
+            + HelpExampleRpc("omni_createpayload_freeze", "\"3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs\", 1, \"100\"")
         );
 
-    std::string refAddress = ParseAddress(params[0]);
-    uint32_t propertyId = ParsePropertyId(params[1]);
-    int64_t amount = ParseAmount(params[2], isPropertyDivisible(propertyId));
-
-    RequireExistingProperty(propertyId);
-    RequireManagedProperty(propertyId);
+    std::string refAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyId = ParsePropertyId(rq.params[1]);
+    int64_t amount = ParseAmount(rq.params[2], isPropertyDivisible(propertyId));
 
     std::vector<unsigned char> payload = CreatePayload_FreezeTokens(propertyId, amount, refAddress);
 
     return HexStr(payload.begin(), payload.end());
 }
 
-UniValue omni_createpayload_unfreeze(const UniValue& params, bool fHelp)
+UniValue omni_createpayload_unfreeze(const JSONRPCRequest& rq)
 {
-    if (fHelp || params.size() != 3)
+    if (rq.fHelp || rq.params.size() != 3)
         throw runtime_error(
             "omni_createpayload_unfreeze \"toaddress\" propertyid amount \n"
 
             "\nCreates the payload to unfreeze an address for a centrally managed token.\n"
 
+            "\nNote: if the server is not synchronized, amounts are considered as divisible, even if the token may have indivisible units!\n"
+
             "\nArguments:\n"
             "1. toaddress            (string, required) the address to unfreeze tokens for\n"
             "2. propertyid           (number, required) the property to unfreeze tokens for (must be managed type and have freezing option enabled)\n"
-            "3. amount               (number, required) the amount of tokens to unfreeze (note: this is unused)\n"
+            "3. amount               (string, required) the amount of tokens to unfreeze (note: this is unused)\n"
 
             "\nResult:\n"
             "\"payload\"             (string) the hex-encoded payload\n"
 
             "\nExamples:\n"
-            + HelpExampleCli("omni_createpayload_unfreeze", "\"3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs\" 1 0")
-            + HelpExampleRpc("omni_createpayload_unfreeze", "\"3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs\", 1, 0")
+            + HelpExampleCli("omni_createpayload_unfreeze", "\"3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs\" 1 \"100\"")
+            + HelpExampleRpc("omni_createpayload_unfreeze", "\"3HTHRxu3aSDV4deakjC7VmsiUp7c6dfbvs\", 1, \"100\"")
         );
 
-    std::string refAddress = ParseAddress(params[0]);
-    uint32_t propertyId = ParsePropertyId(params[1]);
-    int64_t amount = ParseAmount(params[2], isPropertyDivisible(propertyId));
-
-    RequireExistingProperty(propertyId);
-    RequireManagedProperty(propertyId);
+    std::string refAddress = ParseAddress(rq.params[0]);
+    uint32_t propertyId = ParsePropertyId(rq.params[1]);
+    int64_t amount = ParseAmount(rq.params[2], isPropertyDivisible(propertyId));
 
     std::vector<unsigned char> payload = CreatePayload_UnfreezeTokens(propertyId, amount, refAddress);
 

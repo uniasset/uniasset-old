@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,10 +13,11 @@
 
 #include "amount.h"
 #include "init.h"
-#include "main.h" // For DEFAULT_SCRIPTCHECK_THREADS
+#include "validation.h" // For DEFAULT_SCRIPTCHECK_THREADS
 #include "net.h"
+#include "netbase.h"
 #include "txdb.h" // for -dbcache defaults
-#include "intro.h" 
+#include "intro.h"
 
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
@@ -35,7 +36,7 @@ OptionsModel::OptionsModel(QObject *parent, bool resetSettings) :
 
 void OptionsModel::addOverriddenOption(const std::string &option)
 {
-    strOverriddenByCommandLine += QString::fromStdString(option) + "=" + QString::fromStdString(mapArgs[option]) + " ";
+    strOverriddenByCommandLine += QString::fromStdString(option) + "=" + QString::fromStdString(GetArg(option, "")) + " ";
 }
 
 // Writes all missing QSettings with their default values
@@ -58,7 +59,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fHideTrayIcon", false);
     fHideTrayIcon = settings.value("fHideTrayIcon").toBool();
     Q_EMIT hideTrayIconChanged(fHideTrayIcon);
-    
+
     if (!settings.contains("fMinimizeToTray"))
         settings.setValue("fMinimizeToTray", false);
     fMinimizeToTray = settings.value("fMinimizeToTray").toBool() && !fHideTrayIcon;

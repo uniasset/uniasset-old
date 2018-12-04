@@ -22,7 +22,11 @@
 			<integer>370</integer>
 			<integer>156</integer>
 		</array>
+<<<<<<< HEAD
 		<key>UFOmnicore-Qt.app</key>
+=======
+		<key>UFO-Qt.app</key>
+>>>>>>> b34656a2d0dd4f5f9c5070da7123a584d2752a51
 		<array>
 			<integer>128</integer>
 			<integer>156</integer>

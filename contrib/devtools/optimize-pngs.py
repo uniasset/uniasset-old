@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+<<<<<<< HEAD
 # Copyright (c) 2014-2015 The Bitcoin Core developers
+=======
+# Copyright (c) 2014-2016 The Bitcoin Core developers
+>>>>>>> b34656a2d0dd4f5f9c5070da7123a584d2752a51
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 '''
@@ -39,7 +43,7 @@ for folder in folders:
         if extension.lower() == '.png':
             print("optimizing "+file+"..."),
             file_path = os.path.join(absFolder, file)
-            fileMetaMap = {'file' : file, 'osize': os.path.getsize(file_path), 'sha256Old' : file_hash(file_path)};
+            fileMetaMap = {'file' : file, 'osize': os.path.getsize(file_path), 'sha256Old' : file_hash(file_path)}
             fileMetaMap['contentHashPre'] = content_hash(file_path)
         
             pngCrushOutput = ""

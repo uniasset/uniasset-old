@@ -6,7 +6,11 @@
 set -e
 
 ROOTDIR=dist
+<<<<<<< HEAD
 BUNDLE="${ROOTDIR}/UFOmnicore-Qt.app"
+=======
+BUNDLE="${ROOTDIR}/UFO-Qt.app"
+>>>>>>> b34656a2d0dd4f5f9c5070da7123a584d2752a51
 CODESIGN=codesign
 TEMPDIR=sign.temp
 TEMPLIST=${TEMPDIR}/signatures.txt

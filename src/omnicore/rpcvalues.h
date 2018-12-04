@@ -6,6 +6,8 @@ class CTransaction;
 struct CMutableTransaction;
 struct PrevTxsEntry;
 
+#include "primitives/transaction.h"
+
 #include <univalue.h>
 
 #include <stdint.h>

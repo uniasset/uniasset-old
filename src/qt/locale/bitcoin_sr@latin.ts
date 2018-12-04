@@ -255,10 +255,6 @@
         <translation>Iznos:</translation>
     </message>
     <message>
-        <source>Priority:</source>
-        <translation>Prioritet:</translation>
-    </message>
-    <message>
         <source>Fee:</source>
         <translation>Naknada:</translation>
     </message>
@@ -308,6 +304,9 @@
     </message>
     </context>
 <context>
+    <name>ModalOverlay</name>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -328,6 +327,9 @@
         <source>Amount</source>
         <translation>Kolicina</translation>
     </message>
+    </context>
+<context>
+    <name>QObject::QObject</name>
     </context>
 <context>
     <name>QRImageWidget</name>
@@ -353,10 +355,6 @@
     <message>
         <source>Amount:</source>
         <translation>Iznos:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioritet:</translation>
     </message>
     <message>
         <source>Fee:</source>

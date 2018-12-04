@@ -1,19 +1,20 @@
 dnl require autoconf 2.60 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.69])
 define(_CLIENT_VERSION_MAJOR, 0)
-define(_CLIENT_VERSION_MINOR, 13)
+define(_CLIENT_VERSION_MINOR, 14)
 define(_CLIENT_VERSION_REVISION, 0)
 define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_IS_RELEASE, true)
+define(_COPYRIGHT_YEAR, 2018)
+define(_COPYRIGHT_HOLDERS,[The %s developers])
+define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[UFO Core]])
 define(_OMNICORE_VERSION_MAJOR, 0)
 define(_OMNICORE_VERSION_MINOR, 3)
 define(_OMNICORE_VERSION_PATCH, 0)
 define(_OMNICORE_VERSION_BUILD, 0)
-define(_COPYRIGHT_YEAR, 2018)
-define(_COPYRIGHT_HOLDERS,[The %s developers])
-define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[UFO Core]])
-AC_INIT([UFO Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/UFOCoins/uniasset/issues],[uniasset],[https://uniformfiscalobject.com/])
-AC_CONFIG_SRCDIR([src/main.cpp])
+AC_INIT([UniAsset Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/UFOCoins/uniasset/issues],[uniasset],[https://uniasset.org/])
+
+AC_CONFIG_SRCDIR([src/validation.cpp])
 AC_CONFIG_HEADERS([src/config/bitcoin-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
@@ -60,7 +61,7 @@ case $host in
   ;;
 esac
 dnl Require C++11 compiler (no GNU extensions)
-AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
+AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory], [nodefault])
 dnl Check if -latomic is required for <std::atomic>
 CHECK_ATOMIC
 
@@ -130,16 +131,6 @@ AC_ARG_ENABLE(bench,
     [use_bench=$enableval],
     [use_bench=no])
 
-AC_ARG_WITH([comparison-tool],
-    AS_HELP_STRING([--with-comparison-tool],[path to java comparison tool (requires --enable-tests)]),
-    [use_comparison_tool=$withval],
-    [use_comparison_tool=no])
-
-AC_ARG_ENABLE([comparison-tool-reorg-tests],
-    AS_HELP_STRING([--enable-comparison-tool-reorg-tests],[enable expensive reorg tests in the comparison tool (default no)]),
-    [use_comparison_tool_reorg_tests=$enableval],
-    [use_comparison_tool_reorg_tests=no])
-
 AC_ARG_ENABLE([extended-rpc-tests],
     AS_HELP_STRING([--enable-extended-rpc-tests],[enable expensive RPC tests when using lcov (default no)]),
     [use_extended_rpc_tests=$enableval],
@@ -182,14 +173,20 @@ AC_ARG_ENABLE([glibc-back-compat],
   [use_glibc_compat=no])
 
 AC_ARG_ENABLE([sse2],
-  [AS_HELP_STRING([--enable-sse2],[enable SSE2 optimizations (defaults is yes)])],
+  [AC_HELP_STRING([--enable-sse2],
+  [enable SSE2 optimizations (defaults is yes)])],
   [use_sse2=${enableval}],
   [use_sse2=yes])
 
 AC_ARG_ENABLE([asm],
-  [AS_HELP_STRING([--enable-asm],[enable assembly compilation (default is no)])],
+  [AS_HELP_STRING([--enable-asm],
+  [Enable assembly routines (default is yes)])],
   [use_asm=${enableval}],
-  [use_asm=no])
+  [use_asm=yes])
+
+if test "x$use_asm" = xyes; then
+  AC_DEFINE(ASM, 1, [Define this symbol to build in assembly routines])
+fi
 
 AC_ARG_WITH([system-univalue],
   [AS_HELP_STRING([--with-system-univalue],
@@ -205,12 +202,25 @@ AC_ARG_ENABLE([zmq],
 
 AC_ARG_WITH([protoc-bindir],[AS_HELP_STRING([--with-protoc-bindir=BIN_DIR],[specify protoc bin path])], [protoc_bin_path=$withval], [])
 
+AC_ARG_ENABLE(man,
+    [AS_HELP_STRING([--disable-man],
+                    [do not install man pages (default is to install)])],,
+    enable_man=yes)
+AM_CONDITIONAL(ENABLE_MAN, test "$enable_man" != no)
+
 # Enable debug
 AC_ARG_ENABLE([debug],
     [AS_HELP_STRING([--enable-debug],
                     [use debug compiler flags and macros (default is no)])],
     [enable_debug=$enableval],
     [enable_debug=no])
+
+# Turn warnings into errors
+AC_ARG_ENABLE([werror],
+    [AS_HELP_STRING([--enable-werror],
+                    [Treat certain compiler warnings as errors (default is no)])],
+    [enable_werror=$enableval],
+    [enable_werror=no])
 
 AC_LANG_PUSH([C++])
 AX_CHECK_COMPILE_FLAG([-Werror],[CXXFLAG_WERROR="-Werror"],[CXXFLAG_WERROR=""])
@@ -226,10 +236,19 @@ if test "x$enable_debug" = xyes; then
     fi
 fi
 
+ERROR_CXXFLAGS=
+if test "x$enable_werror" = "xyes"; then
+  if test "x$CXXFLAG_WERROR" = "x"; then
+    AC_MSG_ERROR("enable-werror set but -Werror is not usable")
+  fi
+  AX_CHECK_COMPILE_FLAG([-Werror=vla],[ERROR_CXXFLAGS="$ERROR_CXXFLAGS -Werror=vla"],,[[$CXXFLAG_WERROR]])
+fi
+
 if test "x$CXXFLAGS_overridden" = "xno"; then
   AX_CHECK_COMPILE_FLAG([-Wall],[CXXFLAGS="$CXXFLAGS -Wall"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wextra],[CXXFLAGS="$CXXFLAGS -Wextra"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wformat],[CXXFLAGS="$CXXFLAGS -Wformat"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wvla],[CXXFLAGS="$CXXFLAGS -Wvla"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wformat-security],[CXXFLAGS="$CXXFLAGS -Wformat-security"],,[[$CXXFLAG_WERROR]])
 
   ## Some compilers (gcc) ignore unknown -Wno-* options, but warn about all
@@ -416,19 +435,6 @@ if test x$use_pkgconfig = xyes; then
   ])
 fi
 
-if test x$use_comparison_tool != xno; then
-  AC_SUBST(JAVA_COMPARISON_TOOL, $use_comparison_tool)
-fi
-
-if test x$use_comparison_tool_reorg_tests != xno; then
-  if test x$use_comparison_tool = x; then
-    AC_MSG_ERROR("comparison tool reorg tests but comparison tool was not specified")
-  fi
-  AC_SUBST(COMPARISON_TOOL_REORG_TESTS, 1)
-else
-  AC_SUBST(COMPARISON_TOOL_REORG_TESTS, 0)
-fi
-
 if test x$use_extended_rpc_tests != xno; then
   AC_SUBST(EXTENDED_RPC_TESTS, -extended)
 fi
@@ -440,19 +446,15 @@ if test x$use_lcov = xyes; then
   if test x$GCOV = x; then
     AC_MSG_ERROR("lcov testing requested but gcov not found")
   fi
-  if test x$JAVA = x; then
-    AC_MSG_ERROR("lcov testing requested but java not found")
-  fi
   if test x$PYTHON = x; then
     AC_MSG_ERROR("lcov testing requested but python not found")
   fi
   if test x$GENHTML = x; then
     AC_MSG_ERROR("lcov testing requested but genhtml not found")
   fi
-  if test x$use_comparison_tool = x; then
-    AC_MSG_ERROR("lcov testing requested but comparison tool was not specified")
-  fi
   LCOV="$LCOV --gcov-tool=$GCOV"
+  AX_CHECK_LINK_FLAG([[--coverage]], [LDFLAGS="$LDFLAGS --coverage"],
+    [AC_MSG_ERROR("lcov testing requested but --coverage linker flag does not work")])
   AX_CHECK_COMPILE_FLAG([--coverage],[CXXFLAGS="$CXXFLAGS --coverage"],
     [AC_MSG_ERROR("lcov testing requested but --coverage flag does not work")])
 fi
@@ -460,10 +462,6 @@ fi
 if test "$use_sse2" = "yes"; then
     AX_CHECK_COMPILE_FLAG([-msse2],[CFLAGS="$CFLAGS -msse2" && CXXFLAGS="$CXXFLAGS -msse2"])
     AC_DEFINE([USE_SSE2],[1],[Define if SSE2 support should be compiled in])
-fi
-
-if test "$use_asm" = "yes"; then
-    AC_DEFINE([ASM],[1],[Assembly code support])
 fi
 
 dnl Check for endianness
@@ -538,12 +536,13 @@ if test x$use_hardening != xno; then
 
   AX_CHECK_LINK_FLAG([[-Wl,--dynamicbase]], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,--dynamicbase"])
   AX_CHECK_LINK_FLAG([[-Wl,--nxcompat]], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,--nxcompat"])
+  AX_CHECK_LINK_FLAG([[-Wl,--high-entropy-va]], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,--high-entropy-va"])
   AX_CHECK_LINK_FLAG([[-Wl,-z,relro]], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,-z,relro"])
   AX_CHECK_LINK_FLAG([[-Wl,-z,now]], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,-z,now"])
 
   if test x$TARGET_OS != xwindows; then
     if test "$use_asm" = "yes"; then
-        AX_CHECK_COMPILE_FLAG([-fPIC],[HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -fPIC" && CFLAGS="$CFLAGS -fPIC"])
+        AX_CHECK_COMPILE_FLAG([-fPIC],[CXXFLAGS="$CXXFLAGS -fPIC" && CPPFLAGS="$CPPFLAGS -fPIC" && CFLAGS="$CFLAGS -fPIC"])
     else
         AX_CHECK_COMPILE_FLAG([-fPIE],[PIE_FLAGS="-fPIE"])
     fi
@@ -566,6 +565,9 @@ AC_CHECK_HEADERS([endian.h sys/endian.h byteswap.h stdio.h stdlib.h unistd.h str
 
 AC_CHECK_DECLS([strnlen])
 
+# Check for daemon(3), unrelated to --with-daemon (although used by it)
+AC_CHECK_DECLS([daemon])
+
 AC_CHECK_DECLS([le16toh, le32toh, le64toh, htole16, htole32, htole64, be16toh, be32toh, be64toh, htobe16, htobe32, htobe64],,,
 		[#if HAVE_ENDIAN_H
                  #include <endian.h>
@@ -583,6 +585,14 @@ AC_MSG_CHECKING(for MSG_NOSIGNAL)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/socket.h>]],
  [[ int f = MSG_NOSIGNAL; ]])],
  [ AC_MSG_RESULT(yes); AC_DEFINE(HAVE_MSG_NOSIGNAL, 1,[Define this symbol if you have MSG_NOSIGNAL]) ],
+ [ AC_MSG_RESULT(no)]
+)
+
+dnl Check for mallopt(M_ARENA_MAX) (to set glibc arenas)
+AC_MSG_CHECKING(for mallopt M_ARENA_MAX)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <malloc.h>]],
+ [[ mallopt(M_ARENA_MAX, 1); ]])],
+ [ AC_MSG_RESULT(yes); AC_DEFINE(HAVE_MALLOPT_ARENA_MAX, 1,[Define this symbol if you have mallopt with M_ARENA_MAX]) ],
  [ AC_MSG_RESULT(no)]
 )
 
@@ -864,12 +874,28 @@ else
     AC_DEFINE_UNQUOTED([ENABLE_ZMQ],[0],[Define to 1 to enable ZMQ functions])
   fi
 
+  if test "x$use_zmq" = "xyes"; then
+    dnl Assume libzmq was built for static linking
+    case $host in
+      *mingw*)
+        ZMQ_CFLAGS="$ZMQ_CFLAGS -DZMQ_STATIC"
+      ;;
+    esac
+  fi
+
   BITCOIN_QT_CHECK(AC_CHECK_LIB([protobuf] ,[main],[PROTOBUF_LIBS=-lprotobuf], BITCOIN_QT_FAIL(libprotobuf not found)))
   if test x$use_qr != xno; then
     BITCOIN_QT_CHECK([AC_CHECK_LIB([qrencode], [main],[QR_LIBS=-lqrencode], [have_qrencode=no])])
     BITCOIN_QT_CHECK([AC_CHECK_HEADER([qrencode.h],, have_qrencode=no)])
   fi
 fi
+
+save_CXXFLAGS="${CXXFLAGS}"
+CXXFLAGS="${CXXFLAGS} ${CRYPTO_CFLAGS} ${SSL_CFLAGS}"
+AC_CHECK_DECLS([EVP_MD_CTX_new],,,[AC_INCLUDES_DEFAULT
+#include <openssl/x509_vfy.h>
+])
+CXXFLAGS="${save_CXXFLAGS}"
 
 dnl univalue check
 
@@ -1069,8 +1095,6 @@ AM_CONDITIONAL([USE_QRCODE], [test x$use_qr = xyes])
 AM_CONDITIONAL([USE_SSE2], [test x$use_sse2 = xyes])
 AM_CONDITIONAL([ASM], [test x$use_asm = xyes])
 AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
-AM_CONDITIONAL([USE_COMPARISON_TOOL],[test x$use_comparison_tool != xno])
-AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS],[test x$use_comparison_tool_reorg_test != xno])
 AM_CONDITIONAL([GLIBC_BACK_COMPAT],[test x$use_glibc_compat = xyes])
 AM_CONDITIONAL([HARDEN],[test x$use_hardening = xyes])
 
@@ -1108,6 +1132,7 @@ AC_SUBST(OMNICORE_VERSION_PATCH, _OMNICORE_VERSION_PATCH)
 AC_SUBST(OMNICORE_VERSION_BUILD, _OMNICORE_VERSION_BUILD)
 
 AC_SUBST(RELDFLAGS)
+AC_SUBST(ERROR_CXXFLAGS)
 AC_SUBST(HARDENED_CXXFLAGS)
 AC_SUBST(HARDENED_CPPFLAGS)
 AC_SUBST(HARDENED_LDFLAGS)
@@ -1130,7 +1155,7 @@ AC_SUBST(EVENT_PTHREADS_LIBS)
 AC_SUBST(ZMQ_LIBS)
 AC_SUBST(PROTOBUF_LIBS)
 AC_SUBST(QR_LIBS)
-AC_CONFIG_FILES([Makefile src/Makefile share/setup.nsi share/qt/Info.plist src/test/buildenv.py])
+AC_CONFIG_FILES([Makefile src/Makefile doc/man/Makefile share/setup.nsi share/qt/Info.plist src/test/buildenv.py])
 AC_CONFIG_FILES([src/omnicore/res/omnicore-setup-win.nsi])
 AC_CONFIG_FILES([qa/pull-tester/run-bitcoind-for-test.sh],[chmod +x qa/pull-tester/run-bitcoind-for-test.sh])
 AC_CONFIG_FILES([qa/pull-tester/tests_config.py],[chmod +x qa/pull-tester/tests_config.py])
@@ -1188,3 +1213,30 @@ case ${OS} in
      mv qa/pull-tester/tests_config-2.py qa/pull-tester/tests_config.py
    ;;
 esac
+
+echo
+echo "Options used to compile and link:"
+echo "  with wallet   = $enable_wallet"
+echo "  with gui / qt = $bitcoin_enable_qt"
+if test x$bitcoin_enable_qt != xno; then
+    echo "    qt version  = $bitcoin_qt_got_major_vers"
+    echo "    with qr     = $use_qr"
+fi
+echo "  with zmq      = $use_zmq"
+echo "  with test     = $use_tests"
+echo "  with bench    = $use_bench"
+echo "  with upnp     = $use_upnp"
+echo "  use asm       = $use_asm"
+echo "  debug enabled = $enable_debug"
+echo "  werror        = $enable_werror"
+echo
+echo "  target os     = $TARGET_OS"
+echo "  build os      = $BUILD_OS"
+echo
+echo "  CC            = $CC"
+echo "  CFLAGS        = $CFLAGS"
+echo "  CPPFLAGS      = $CPPFLAGS"
+echo "  CXX           = $CXX"
+echo "  CXXFLAGS      = $CXXFLAGS"
+echo "  LDFLAGS       = $LDFLAGS"
+echo

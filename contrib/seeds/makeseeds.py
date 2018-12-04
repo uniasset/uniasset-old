@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# Copyright (c) 2013-2015 The Bitcoin Core developers
+#!/usr/bin/env python3
+# Copyright (c) 2013-2017 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
@@ -12,10 +12,6 @@ MAX_SEEDS_PER_ASN=2
 
 MIN_BLOCKS = 1100000
 
-# These are hosts that have been observed to be behaving strangely (e.g.
-# aggressively connecting to every node).
-SUSPICIOUS_HOSTS = set([])
-
 import re
 import sys
 import dns.resolver
@@ -24,7 +20,7 @@ import collections
 PATTERN_IPV4 = re.compile(r"^((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})):(\d+)$")
 PATTERN_IPV6 = re.compile(r"^\[([0-9a-z:]+)\]:(\d+)$")
 PATTERN_ONION = re.compile(r"^([abcdefghijklmnopqrstuvwxyz234567]{16}\.onion):(\d+)$")
-PATTERN_AGENT = re.compile(r"^(/Satoshi:0.11.(0|99)/|/Satoshi:0.12.(0|99)/|/Satoshi:0.13.(0|99)/)$")
+PATTERN_AGENT = re.compile(r"^(/Satoshi:0.10.(1|99)/|/Satoshi:0.11.(0|99)/|/Satoshi:0.12.(0|99)/|/UFO:0.13.(0|99)/)$")
 
 def parseline(line):
     sline = line.split()
@@ -98,7 +94,7 @@ def filtermultiport(ips):
     hist = collections.defaultdict(list)
     for ip in ips:
         hist[ip['sortkey']].append(ip)
-    return [value[0] for (key,value) in hist.items() if len(value)==1]
+    return [value[0] for (key,value) in list(hist.items()) if len(value)==1]
 
 # Based on Greg Maxwell's seed_filter.py
 def filterbyasn(ips, max_per_asn, max_total):
@@ -137,8 +133,6 @@ def main():
 
     # Skip entries with valid address.
     ips = [ip for ip in ips if ip is not None]
-    # Skip entries from suspicious hosts.
-    ips = [ip for ip in ips if ip['ip'] not in SUSPICIOUS_HOSTS]
     # Enforce minimal number of blocks.
     ips = [ip for ip in ips if ip['blocks'] >= MIN_BLOCKS]
     # Require service bit 1.
@@ -158,9 +152,9 @@ def main():
 
     for ip in ips:
         if ip['net'] == 'ipv6':
-            print '[%s]:%i' % (ip['ip'], ip['port'])
+            print('[%s]:%i' % (ip['ip'], ip['port']))
         else:
-            print '%s:%i' % (ip['ip'], ip['port'])
+            print('%s:%i' % (ip['ip'], ip['port']))
 
 if __name__ == '__main__':
     main()

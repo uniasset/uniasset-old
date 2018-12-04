@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -42,18 +42,17 @@
 #include <QTableView>
 #include <QVBoxLayout>
 
-WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
+WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     QStackedWidget(parent),
     clientModel(0),
     walletModel(0),
-    platformStyle(platformStyle)
+    platformStyle(_platformStyle)
 {
     // Create tabs
     overviewPage = new OverviewPage(platformStyle);
 
     // Transactions page, Omni transactions in first tab, BTC only transactions in second tab
     transactionsPage = new QWidget(this);
-    bitcoinTXTab = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout();
     QHBoxLayout *hbox_buttons = new QHBoxLayout();
     transactionView = new TransactionView(platformStyle, this);
@@ -66,9 +65,15 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     hbox_buttons->addStretch();
     hbox_buttons->addWidget(exportButton);
     vbox->addLayout(hbox_buttons);
-    bitcoinTXTab->setLayout(vbox);
+
+    // omnicore  on
+
     mpTXTab = new TXHistoryDialog;
     transactionsPage = new QWidget(this);
+
+    bitcoinTXTab = new QWidget(this);
+    bitcoinTXTab->setLayout(vbox);
+
     QVBoxLayout *txvbox = new QVBoxLayout();
     txTabHolder = new QTabWidget();
     txTabHolder->addTab(mpTXTab,tr("Omni Layer"));
@@ -78,10 +83,15 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
 
     balancesPage = new BalancesDialog();
 
+    // omnicore off
+
     receiveCoinsPage = new ReceiveCoinsDialog(platformStyle);
+    //sendCoinsPage = new SendCoinsDialog(platformStyle);
+    
     usedSendingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::SendingTab, this);
     usedReceivingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::ReceivingTab, this);
 
+    // omnicore
     // sending page
     sendCoinsPage = new QWidget(this);
     QVBoxLayout *svbox = new QVBoxLayout();
@@ -92,6 +102,8 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     sendTabHolder->addTab(sendCoinsTab,tr("UFO"));
     svbox->addWidget(sendTabHolder);
     sendCoinsPage->setLayout(svbox);
+
+    // omnicore off
 
     /**
      * exchange page is disabled in this version
@@ -134,6 +146,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
     connect(overviewPage, SIGNAL(omniTransactionClicked(uint256)), mpTXTab, SLOT(focusTransaction(uint256)));
+    connect(overviewPage, SIGNAL(outOfSyncWarningClicked()), this, SLOT(requestedSyncWarningInfo()));
 
     // Double-clicking on a transaction on the transaction history page shows details
     connect(transactionView, SIGNAL(doubleClicked(QModelIndex)), transactionView, SLOT(showDetails()));
@@ -167,57 +180,66 @@ void WalletView::setBitcoinGUI(BitcoinGUI *gui)
 
         // Pass through transaction notifications
         connect(this, SIGNAL(incomingTransaction(QString,int,CAmount,QString,QString,QString)), gui, SLOT(incomingTransaction(QString,int,CAmount,QString,QString,QString)));
+
+        // Connect HD enabled state signal
+        connect(this, SIGNAL(hdEnabledStatusChanged(int)), gui, SLOT(setHDStatus(int)));
     }
 }
 
-void WalletView::setClientModel(ClientModel *clientModel)
+void WalletView::setClientModel(ClientModel *_clientModel)
 {
-    this->clientModel = clientModel;
+    this->clientModel = _clientModel;
 
-    overviewPage->setClientModel(clientModel);
-    balancesPage->setClientModel(clientModel);
-    sendMPTab->setClientModel(clientModel);
-    mpTXTab->setClientModel(clientModel);
+    overviewPage->setClientModel(_clientModel);
+    sendCoinsTab->setClientModel(_clientModel); // omnicore fix
+    balancesPage->setClientModel(_clientModel);
+    sendMPTab->setClientModel(_clientModel);
+    mpTXTab->setClientModel(_clientModel);
     // cancelTab->setClientModel(clientModel);
     // tradeHistoryTab->setClientModel(clientModel);
     // metaDExTab->setClientModel(clientModel);
 }
 
-void WalletView::setWalletModel(WalletModel *walletModel)
+void WalletView::setWalletModel(WalletModel *_walletModel)
 {
-    this->walletModel = walletModel;
+    this->walletModel = _walletModel;
 
-    transactionView->setModel(walletModel);
-    overviewPage->setWalletModel(walletModel);
-    receiveCoinsPage->setModel(walletModel);
-    usedReceivingAddressesPage->setModel(walletModel->getAddressTableModel());
-    usedSendingAddressesPage->setModel(walletModel->getAddressTableModel());
-    sendCoinsTab->setModel(walletModel);
-    sendMPTab->setWalletModel(walletModel);
-    balancesPage->setWalletModel(walletModel);
-    mpTXTab->setWalletModel(walletModel);
-    // metaDExTab->setWalletModel(walletModel);
-    // tradeHistoryTab->setWalletModel(walletModel);
-    // cancelTab->setWalletModel(walletModel);
+    transactionView->setModel(_walletModel);
+    overviewPage->setWalletModel(_walletModel);
+    receiveCoinsPage->setModel(_walletModel);
+    sendCoinsTab->setModel(_walletModel); // omnicore fix
+    usedReceivingAddressesPage->setModel(_walletModel->getAddressTableModel());
+    usedSendingAddressesPage->setModel(_walletModel->getAddressTableModel());
 
-    if (walletModel)
+    sendCoinsTab->setModel(_walletModel);
+    sendMPTab->setWalletModel(_walletModel);
+    balancesPage->setWalletModel(_walletModel);
+    mpTXTab->setWalletModel(_walletModel);
+    // metaDExTab->setWalletModel(_walletModel);
+    // tradeHistoryTab->setWalletModel(_walletModel);
+    // cancelTab->setWalletModel(_walletModel);
+
+    if (_walletModel)
     {
         // Receive and pass through messages from wallet model
-        connect(walletModel, SIGNAL(message(QString,QString,unsigned int)), this, SIGNAL(message(QString,QString,unsigned int)));
+        connect(_walletModel, SIGNAL(message(QString,QString,unsigned int)), this, SIGNAL(message(QString,QString,unsigned int)));
 
         // Handle changes in encryption status
-        connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SIGNAL(encryptionStatusChanged(int)));
+        connect(_walletModel, SIGNAL(encryptionStatusChanged(int)), this, SIGNAL(encryptionStatusChanged(int)));
         updateEncryptionStatus();
 
+        // update HD status
+        Q_EMIT hdEnabledStatusChanged(_walletModel->hdEnabled());
+
         // Balloon pop-up for new transaction
-        connect(walletModel->getTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
+        connect(_walletModel->getTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
                 this, SLOT(processNewTransaction(QModelIndex,int,int)));
 
         // Ask for passphrase if needed
-        connect(walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
+        connect(_walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
 
         // Show progress dialog
-        connect(walletModel, SIGNAL(showProgress(QString,int)), this, SLOT(showProgress(QString,int)));
+        connect(_walletModel, SIGNAL(showProgress(QString,int)), this, SLOT(showProgress(QString,int)));
     }
 }
 
@@ -422,4 +444,9 @@ void WalletView::showProgress(const QString &title, int nProgress)
     }
     else if (progressDialog)
         progressDialog->setValue(nProgress);
+}
+
+void WalletView::requestedSyncWarningInfo()
+{
+    Q_EMIT outOfSyncWarningClicked();
 }

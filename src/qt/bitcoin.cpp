@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -30,10 +30,13 @@
 #include "scheduler.h"
 #include "ui_interface.h"
 #include "util.h"
+#include "warnings.h"
 
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
+
+#include "omnicore/utilsui.h"
 
 #include <stdint.h>
 
@@ -260,7 +263,7 @@ BitcoinCore::BitcoinCore():
 void BitcoinCore::handleRunawayException(const std::exception *e)
 {
     PrintExceptionContinue(e, "Runaway exception");
-    Q_EMIT runawayException(QString::fromStdString(strMiscWarning));
+    Q_EMIT runawayException(QString::fromStdString(GetWarnings("gui")));
 }
 
 void BitcoinCore::initialize()
@@ -268,7 +271,22 @@ void BitcoinCore::initialize()
     try
     {
         qDebug() << __func__ << ": Running AppInit2 in thread";
-        int rv = AppInit2(threadGroup, scheduler);
+        if (!AppInitBasicSetup())
+        {
+            Q_EMIT initializeResult(false);
+            return;
+        }
+        if (!AppInitParameterInteraction())
+        {
+            Q_EMIT initializeResult(false);
+            return;
+        }
+        if (!AppInitSanityChecks())
+        {
+            Q_EMIT initializeResult(false);
+            return;
+        }
+        int rv = AppInitMain(threadGroup, scheduler);
         Q_EMIT initializeResult(rv);
     } catch (const std::exception& e) {
         handleRunawayException(&e);
@@ -428,6 +446,8 @@ void BitcoinApplication::requestShutdown()
     delete clientModel;
     clientModel = 0;
 
+    StartShutdown();
+
     // Request shutdown from core thread
     Q_EMIT requestedShutdown();
 }
@@ -475,7 +495,7 @@ void BitcoinApplication::initializeResult(int retval)
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
-        // bitcoin: URIs or payment requests:
+        // ufo: URIs or payment requests:
         connect(paymentServer, SIGNAL(receivedPaymentRequest(SendCoinsRecipient)),
                          window, SLOT(handlePaymentRequest(SendCoinsRecipient)));
         connect(window, SIGNAL(receivedURI(QString)),
@@ -513,6 +533,9 @@ WId BitcoinApplication::getMainWinId() const
 int main(int argc, char *argv[])
 {
     SetupEnvironment();
+
+    // Indicate UI mode
+    fQtMode = true;
 
     /// 1. Parse command-line options. These take precedence over anything else.
     // Command-line options take precedence:
@@ -571,9 +594,9 @@ int main(int argc, char *argv[])
 
     // Show help message immediately after parsing command-line options (for "-lang") and setting locale,
     // but before showing splash screen.
-    if (mapArgs.count("-?") || mapArgs.count("-h") || mapArgs.count("-help") || mapArgs.count("-version"))
+    if (IsArgSet("-?") || IsArgSet("-h") || IsArgSet("-help") || IsArgSet("-version"))
     {
-        HelpMessageDialog help(NULL, mapArgs.count("-version"));
+        HelpMessageDialog help(NULL, IsArgSet("-version"));
         help.showOrPrint();
         return EXIT_SUCCESS;
     }
@@ -588,11 +611,11 @@ int main(int argc, char *argv[])
     if (!boost::filesystem::is_directory(GetDataDir(false)))
     {
         QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
-                              QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
+                              QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(GetArg("-datadir", ""))));
         return EXIT_FAILURE;
     }
     try {
-        ReadConfigFile(mapArgs, mapMultiArgs);
+        ReadConfigFile(GetArg("-conf", BITCOIN_CONF_FILENAME));
     } catch (const std::exception& e) {
         QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
                               QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
@@ -635,7 +658,7 @@ int main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
 
     // Start up the payment server early, too, so impatient users that click on
-    // bitcoin: links repeatedly have their payment requests routed to this process:
+    // ufo: links repeatedly have their payment requests routed to this process:
     app.createPaymentServer();
 #endif
 
@@ -656,7 +679,7 @@ int main(int argc, char *argv[])
     // Allow parameter interaction before we create the options model
     app.parameterSetup();
     // Load GUI settings from QSettings
-    app.createOptionsModel(mapArgs.count("-resetguisettings") != 0);
+    app.createOptionsModel(IsArgSet("-resetguisettings"));
 
     // Subscribe to global signals from core
     uiInterface.InitMessage.connect(InitMessage);
@@ -676,10 +699,10 @@ int main(int argc, char *argv[])
         app.exec();
     } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "Runaway exception");
-        app.handleRunawayException(QString::fromStdString(strMiscWarning));
+        app.handleRunawayException(QString::fromStdString(GetWarnings("gui")));
     } catch (...) {
         PrintExceptionContinue(NULL, "Runaway exception");
-        app.handleRunawayException(QString::fromStdString(strMiscWarning));
+        app.handleRunawayException(QString::fromStdString(GetWarnings("gui")));
     }
     return app.getReturnValue();
 }

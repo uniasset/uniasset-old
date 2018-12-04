@@ -6,20 +6,26 @@
 
 #include "omnicore/rpctxobject.h"
 
+#include "omnicore/dbspinfo.h"
+#include "omnicore/dbstolist.h"
+#include "omnicore/dbtradelist.h"
+#include "omnicore/dbtransaction.h"
+#include "omnicore/dbtxlist.h"
 #include "omnicore/dex.h"
 #include "omnicore/errors.h"
 #include "omnicore/mdex.h"
 #include "omnicore/omnicore.h"
+#include "omnicore/parsing.h"
 #include "omnicore/pending.h"
 #include "omnicore/rpctxobject.h"
 #include "omnicore/sp.h"
 #include "omnicore/sto.h"
 #include "omnicore/tx.h"
 #include "omnicore/utilsbitcoin.h"
-#include "omnicore/wallettxs.h"
+#include "omnicore/walletutils.h"
 
 #include "chainparams.h"
-#include "main.h"
+#include "validation.h"
 #include "primitives/transaction.h"
 #include "sync.h"
 #include "uint256.h"
@@ -47,7 +53,7 @@ using namespace mastercore;
 int populateRPCTransactionObject(const uint256& txid, UniValue& txobj, std::string filterAddress, bool extendedDetails, std::string extendedDetailsFilter)
 {
     // retrieve the transaction from the blockchain and obtain it's height/confs/time
-    CTransaction tx;
+    CTransactionRef tx;
     uint256 blockHash;
     if (!GetTransaction(txid, tx, Params().GetConsensus(), blockHash, true)) {
         return MP_TX_NOT_FOUND;
@@ -56,7 +62,7 @@ int populateRPCTransactionObject(const uint256& txid, UniValue& txobj, std::stri
     return populateRPCTransactionObject(tx, blockHash, txobj, filterAddress, extendedDetails, extendedDetailsFilter);
 }
 
-int populateRPCTransactionObject(const CTransaction& tx, const uint256& blockHash, UniValue& txobj, std::string filterAddress, bool extendedDetails, std::string extendedDetailsFilter, int blockHeight)
+int populateRPCTransactionObject(const CTransactionRef& tx, const uint256& blockHash, UniValue& txobj, std::string filterAddress, bool extendedDetails, std::string extendedDetailsFilter, int blockHeight)
 {
     int confirmations = 0;
     int64_t blockTime = 0;
@@ -80,7 +86,7 @@ int populateRPCTransactionObject(const CTransaction& tx, const uint256& blockHas
     int parseRC = ParseTransaction(tx, blockHeight, 0, mp_obj, blockTime);
     if (parseRC < 0) return MP_TX_IS_NOT_MASTER_PROTOCOL;
 
-    const uint256& txid = tx.GetHash();
+    const uint256& txid = tx->GetHash();
 
     // DEx BTC payment needs special handling since it's not actually an Omni message - handle and return
     if (parseRC > 0) {
@@ -117,7 +123,7 @@ int populateRPCTransactionObject(const CTransaction& tx, const uint256& blockHas
     bool valid = false;
     if (confirmations > 0) {
         LOCK(cs_tally);
-        valid = getValidMPTX(txid);
+        valid = p_txlistdb->getValidMPTX(txid);
         positionInBlock = p_OmniTXDB->FetchTransactionPosition(txid);
     }
 
@@ -212,6 +218,18 @@ void populateRPCTypeInfo(CMPTransaction& mp_obj, UniValue& txobj, uint32_t txTyp
         case MSC_TYPE_CHANGE_ISSUER_ADDRESS:
             populateRPCTypeChangeIssuer(mp_obj, txobj);
             break;
+        case MSC_TYPE_ENABLE_FREEZING:
+            populateRPCTypeEnableFreezing(mp_obj, txobj);
+            break;
+        case MSC_TYPE_DISABLE_FREEZING:
+            populateRPCTypeDisableFreezing(mp_obj, txobj);
+            break;
+        case MSC_TYPE_FREEZE_PROPERTY_TOKENS:
+            populateRPCTypeFreezeTokens(mp_obj, txobj);
+            break;
+        case MSC_TYPE_UNFREEZE_PROPERTY_TOKENS:
+            populateRPCTypeUnfreezeTokens(mp_obj, txobj);
+            break;
         case OMNICORE_MESSAGE_TYPE_ACTIVATION:
             populateRPCTypeActivation(mp_obj, txobj);
             break;
@@ -239,6 +257,10 @@ bool showRefForTx(uint32_t txType)
         case MSC_TYPE_REVOKE_PROPERTY_TOKENS: return false;
         case MSC_TYPE_CHANGE_ISSUER_ADDRESS: return true;
         case MSC_TYPE_SEND_ALL: return true;
+        case MSC_TYPE_ENABLE_FREEZING: return false;
+        case MSC_TYPE_DISABLE_FREEZING: return false;
+        case MSC_TYPE_FREEZE_PROPERTY_TOKENS: return true;
+        case MSC_TYPE_UNFREEZE_PROPERTY_TOKENS: return true;
         case OMNICORE_MESSAGE_TYPE_ACTIVATION: return false;
     }
     return true; // default to true, shouldn't be needed but just in case
@@ -314,7 +336,7 @@ void populateRPCTypeTradeOffer(CMPTransaction& omniObj, UniValue& txobj)
         unsigned int tmptype = 0;
         uint64_t amountNew = 0;
         LOCK(cs_tally);
-        bool tmpValid = getValidMPTX(omniObj.getHash(), &tmpblock, &tmptype, &amountNew);
+        bool tmpValid = p_txlistdb->getValidMPTX(omniObj.getHash(), &tmpblock, &tmptype, &amountNew);
         if (tmpValid && amountNew > 0) {
             amountDesired = calculateDesiredBTC(amountOffered, amountDesired, amountNew);
             amountOffered = amountNew;
@@ -399,7 +421,7 @@ void populateRPCTypeAcceptOffer(CMPTransaction& omniObj, UniValue& txobj)
     uint64_t amountNew = 0;
 
     LOCK(cs_tally);
-    bool tmpValid = getValidMPTX(omniObj.getHash(), &tmpblock, &tmptype, &amountNew);
+    bool tmpValid = p_txlistdb->getValidMPTX(omniObj.getHash(), &tmpblock, &tmptype, &amountNew);
     if (tmpValid && amountNew > 0) amount = amountNew;
 
     txobj.push_back(Pair("propertyid", (uint64_t)propertyId));
@@ -513,6 +535,25 @@ void populateRPCTypeActivation(CMPTransaction& omniObj, UniValue& txobj)
     txobj.push_back(Pair("minimumversion", (uint64_t) omniObj.getMinClientVersion()));
 }
 
+void populateRPCTypeEnableFreezing(CMPTransaction& omniObj, UniValue& txobj)
+{
+    txobj.push_back(Pair("propertyid", (uint64_t) omniObj.getProperty()));
+}
+
+void populateRPCTypeDisableFreezing(CMPTransaction& omniObj, UniValue& txobj)
+{
+    txobj.push_back(Pair("propertyid", (uint64_t) omniObj.getProperty()));
+}
+void populateRPCTypeFreezeTokens(CMPTransaction& omniObj, UniValue& txobj)
+{
+    txobj.push_back(Pair("propertyid", (uint64_t) omniObj.getProperty()));
+}
+
+void populateRPCTypeUnfreezeTokens(CMPTransaction& omniObj, UniValue& txobj)
+{
+    txobj.push_back(Pair("propertyid", (uint64_t) omniObj.getProperty()));
+}
+
 void populateRPCExtendedTypeSendToOwners(const uint256 txid, std::string extendedDetailsFilter, UniValue& txobj, uint16_t version)
 {
     UniValue receiveArray(UniValue::VARR);
@@ -610,15 +651,15 @@ int populateRPCSendAllSubSends(const uint256& txid, UniValue& subSends)
  * Note: this function exists as it is feasible for a single transaction to carry multiple outputs
  *       and thus make multiple purchases from a single transaction
  */
-int populateRPCDExPurchases(const CTransaction& wtx, UniValue& purchases, std::string filterAddress)
+int populateRPCDExPurchases(const CTransactionRef& wtx, UniValue& purchases, std::string filterAddress)
 {
     int numberOfPurchases = 0;
     {
         LOCK(cs_tally);
-        numberOfPurchases = p_txlistdb->getNumberOfSubRecords(wtx.GetHash());
+        numberOfPurchases = p_txlistdb->getNumberOfSubRecords(wtx->GetHash());
     }
     if (numberOfPurchases <= 0) {
-        PrintToLog("TXLISTDB Error: Transaction %s parsed as a DEx payment but could not locate purchases in txlistdb.\n", wtx.GetHash().GetHex());
+        PrintToLog("TXLISTDB Error: Transaction %s parsed as a DEx payment but could not locate purchases in txlistdb.\n", wtx->GetHash().GetHex());
         return -1;
     }
     for (int purchaseNumber = 1; purchaseNumber <= numberOfPurchases; purchaseNumber++) {
@@ -627,12 +668,12 @@ int populateRPCDExPurchases(const CTransaction& wtx, UniValue& purchases, std::s
         uint64_t vout, nValue, propertyId;
         {
             LOCK(cs_tally);
-            p_txlistdb->getPurchaseDetails(wtx.GetHash(), purchaseNumber, &buyer, &seller, &vout, &propertyId, &nValue);
+            p_txlistdb->getPurchaseDetails(wtx->GetHash(), purchaseNumber, &buyer, &seller, &vout, &propertyId, &nValue);
         }
         if (!filterAddress.empty() && buyer != filterAddress && seller != filterAddress) continue; // filter requested & doesn't match
         bool bIsMine = false;
         if (IsMyAddress(buyer) || IsMyAddress(seller)) bIsMine = true;
-        int64_t amountPaid = wtx.vout[vout].nValue;
+        int64_t amountPaid = wtx->vout[vout].nValue;
         purchaseObj.push_back(Pair("vout", vout));
         purchaseObj.push_back(Pair("amountpaid", FormatDivisibleMP(amountPaid)));
         purchaseObj.push_back(Pair("ismine", bIsMine));

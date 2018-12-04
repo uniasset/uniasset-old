@@ -6,7 +6,7 @@
 #include "omnicore/utilsbitcoin.h"
 #include "omnicore/version.h"
 
-#include "main.h"
+#include "validation.h"
 #include "util.h"
 #include "ui_interface.h"
 
@@ -100,7 +100,7 @@ bool CheckAlertAuthorization(const std::string& sender)
     // use -omnialertallowsender for testing
 
     // Add manually whitelisted sources
-    if (mapArgs.count("-omnialertallowsender")) {
+    if (GetBoolArg("-omnialertallowsender", false)) {
         const std::vector<std::string>& sources = mapMultiArgs["-omnialertallowsender"];
 
         for (std::vector<std::string>::const_iterator it = sources.begin(); it != sources.end(); ++it) {
@@ -109,7 +109,7 @@ bool CheckAlertAuthorization(const std::string& sender)
     }
 
     // Remove manually ignored sources
-    if (mapArgs.count("-omnialertignoresender")) {
+    if (GetBoolArg("-omnialertignoresender", false)) {
         const std::vector<std::string>& sources = mapMultiArgs["-omnialertignoresender"];
 
         for (std::vector<std::string>::const_iterator it = sources.begin(); it != sources.end(); ++it) {

@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #
-# Test -alertnotify 
+# Test -alertnotify
 #
 
 from test_framework.test_framework import BitcoinTestFramework
@@ -22,7 +22,7 @@ class ForkNotifyTest(BitcoinTestFramework):
     def setup_network(self):
         self.nodes = []
         self.alert_filename = os.path.join(self.options.tmpdir, "alert.txt")
-        with open(self.alert_filename, 'w', encoding='utf8') as f:
+        with open(self.alert_filename, 'w', encoding='utf8'):
             pass  # Just open then close to create zero-length file
         self.nodes.append(start_node(0, self.options.tmpdir,
                             ["-blockversion=2", "-alertnotify=echo %s >> \"" + self.alert_filename + "\""]))

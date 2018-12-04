@@ -13,9 +13,11 @@
 #include "clientmodel.h"
 #include "platformstyle.h"
 
-#include "omnicore/fetchwallettx.h"
+#include "omnicore/dbtradelist.h"
+#include "omnicore/dbtxlist.h"
 #include "omnicore/mdex.h"
 #include "omnicore/omnicore.h"
+#include "omnicore/parsing.h"
 #include "omnicore/pending.h"
 #include "omnicore/rpc.h"
 #include "omnicore/rpctxobject.h"
@@ -23,11 +25,12 @@
 #include "omnicore/tx.h"
 #include "omnicore/utilsbitcoin.h"
 #include "omnicore/walletcache.h"
-#include "omnicore/wallettxs.h"
+#include "omnicore/walletfetchtxs.h"
+#include "omnicore/walletutils.h"
 
 #include "amount.h"
 #include "init.h"
-#include "main.h"
+#include "validation.h"
 #include "primitives/transaction.h"
 #include "sync.h"
 #include "txdb.h"
@@ -340,7 +343,7 @@ int TradeHistoryDialog::PopulateTradeHistoryMap()
         }
 
         // tx not in historyMap, retrieve the transaction object
-        CTransaction wtx;
+        CTransactionRef wtx;
         uint256 blockHash;
         if (!GetTransaction(hash, wtx, Params().GetConsensus(), blockHash, true)) continue;
         if (blockHash.IsNull() || NULL == GetBlockIndex(blockHash)) continue;
@@ -366,7 +369,7 @@ int TradeHistoryDialog::PopulateTradeHistoryMap()
         // parse the transaction
         if (0 != ParseTransaction(wtx, blockHeight, 0, mp_obj)) continue;
         if (mp_obj.interpret_Transaction()) {
-            valid = getValidMPTX(hash);
+            valid = p_txlistdb->getValidMPTX(hash);
             propertyIdForSale = mp_obj.getProperty();
             amountForSale = mp_obj.getAmount();
             divisibleForSale = isPropertyDivisible(propertyIdForSale);

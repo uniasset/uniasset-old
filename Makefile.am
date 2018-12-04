@@ -4,6 +4,9 @@
 
 ACLOCAL_AMFLAGS = -I build-aux/m4
 SUBDIRS = src
+if ENABLE_MAN
+SUBDIRS += doc/man
+endif
 .PHONY: deploy FORCE
 
 GZIP_ENV="-9n"
@@ -35,10 +38,18 @@ OSX_INSTALLER_ICONS=$(top_srcdir)/src/qt/res/icons/bitcoin.icns
 OSX_PLIST=$(top_builddir)/share/qt/Info.plist #not installed
 OSX_QT_TRANSLATIONS = da,de,es,hu,ru,uk,zh_CN,zh_TW
 
+
 DIST_DOCS = $(wildcard doc/*.md) $(wildcard doc/release-notes/*.md) \
   $(wildcard src/omnicore/*.md) \
   $(wildcard src/omnicore/doc/*.md) \
   $(wildcard src/omnicore/doc/release-notes/*.md)
+
+DIST_CONTRIB = $(top_srcdir)/contrib/bitcoin-cli.bash-completion \
+	       $(top_srcdir)/contrib/bitcoin-tx.bash-completion \
+	       $(top_srcdir)/contrib/bitcoind.bash-completion \
+	       $(top_srcdir)/contrib/init \
+	       $(top_srcdir)/contrib/rpm
+
 
 BIN_CHECKS=$(top_srcdir)/contrib/devtools/symbol-check.py \
            $(top_srcdir)/contrib/devtools/security-check.py
@@ -54,7 +65,7 @@ OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_FANCY_PLIST) $(OSX_INSTALLER_ICONS) \
   $(top_srcdir)/contrib/macdeploy/detached-sig-apply.sh \
   $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
 
-COVERAGE_INFO = baseline_filtered_combined.info baseline.info block_test.info \
+COVERAGE_INFO = baseline_filtered_combined.info baseline.info \
   leveldb_baseline.info test_bitcoin_filtered.info total_coverage.info \
   baseline_filtered.info block_test_filtered.info rpc_test.info rpc_test_filtered.info \
   omnicore_test.info omnicore_test_filtered.info \
@@ -71,9 +82,6 @@ $(BITCOIN_WIN_INSTALLER): all-recursive
 	@test -f $(MAKENSIS) && $(MAKENSIS) -V2 $(top_builddir)/src/omnicore/res/omnicore-setup-win.nsi || \
 	  echo error: could not build $@
 	@echo built $@
-
-$(if $(findstring src/,$(MAKECMDGOALS)),$(MAKECMDGOALS), none): FORCE
-	$(MAKE) -C src $(patsubst src/%,%,$@)
 
 $(OSX_APP)/Contents/PkgInfo:
 	$(MKDIR_P) $(@D)
@@ -190,16 +198,6 @@ test_bitcoin.info: baseline_filtered_combined.info
 test_bitcoin_filtered.info: test_bitcoin.info
 	$(LCOV) -r $< "/usr/include/*" -o $@
 
-block_test.info: test_bitcoin_filtered.info
-	$(MKDIR_P) qa/tmp
-	-@TIMEOUT=15 qa/pull-tester/run-bitcoind-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool $(COMPARISON_TOOL_REORG_TESTS)
-	$(LCOV) -c -d $(abs_builddir)/src --t BitcoinJBlockTest -o $@
-	$(LCOV) -z -d $(abs_builddir)/src
-	$(LCOV) -z -d $(abs_builddir)/src/leveldb
-
-block_test_filtered.info: block_test.info
-	$(LCOV) -r $< "/usr/include/*" -o $@
-
 rpc_test.info: test_bitcoin_filtered.info
 	-@TIMEOUT=15 python qa/pull-tester/rpc-tests.py $(EXTENDED_RPC_TESTS)
 	$(LCOV) -c -d $(abs_builddir)/src --t rpc-tests -o $@
@@ -236,12 +234,6 @@ cov: test_bitcoin.coverage/.dirstamp total.coverage/.dirstamp
 
 endif
 
-if USE_COMPARISON_TOOL
-check-local:
-	$(MKDIR_P) qa/tmp
-	@qa/pull-tester/run-bitcoind-for-test.sh $(JAVA) -jar $(JAVA_COMPARISON_TOOL) qa/tmp/compTool $(COMPARISON_TOOL_REORG_TESTS) 2>&1
-endif
-
 dist_noinst_SCRIPTS = autogen.sh
 
 EXTRA_DIST = $(top_srcdir)/share/genbuild.sh qa/pull-tester/rpc-tests.py qa/pull-tester/omnicore-rpc-tests.sh qa/rpc-tests $(DIST_DOCS) $(WINDOWS_PACKAGING) $(OSX_PACKAGING) $(BIN_CHECKS)
@@ -252,6 +244,8 @@ CLEANFILES = $(OSX_DMG) $(BITCOIN_WIN_INSTALLER)
 DISTCLEANFILES = qa/pull-tester/tests_config.pyc
 
 .INTERMEDIATE: $(COVERAGE_INFO)
+
+DISTCHECK_CONFIGURE_FLAGS = --enable-man
 
 clean-local:
 	rm -rf coverage_percent.txt test_bitcoin.coverage/ total.coverage/ qa/tmp/ cache/ $(OSX_APP)

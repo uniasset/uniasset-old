@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,16 +16,18 @@
 #include "walletmodel.h"
 
 #include "omnicore/activation.h"
+#include "omnicore/dbtxlist.h"
 #include "omnicore/notifications.h"
 #include "omnicore/omnicore.h"
 #include "omnicore/rules.h"
 #include "omnicore/sp.h"
 #include "omnicore/tx.h"
+#include "omnicore/parsing.h"
 #include "omnicore/pending.h"
 #include "omnicore/utilsbitcoin.h"
-#include "omnicore/wallettxs.h"
+#include "omnicore/walletutils.h"
 
-#include "main.h"
+#include "validation.h"
 #include "sync.h"
 
 #include <sstream>
@@ -84,9 +86,9 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(const PlatformStyle *platformStyle, QObject *parent=nullptr):
+    TxViewDelegate(const PlatformStyle *_platformStyle, QObject *parent=nullptr):
         QAbstractItemDelegate(parent), unit(BitcoinUnits::BTC),
-        platformStyle(platformStyle)
+        platformStyle(_platformStyle)
     {
 
     }
@@ -157,7 +159,7 @@ public:
             if (p_txlistdb->exists(hash)) {
                 omniOverride = true;
                 amount = 0;
-                CTransaction wtx;
+                CTransactionRef wtx;
                 uint256 blockHash;
                 if (GetTransaction(hash, wtx, Params().GetConsensus(), blockHash, true)) {
                     if (!blockHash.IsNull() || NULL == GetBlockIndex(blockHash)) {
@@ -191,7 +193,7 @@ public:
                                 }
                             } else if (0 == parseRC) {
                                 if (mp_obj.interpret_Transaction()) {
-                                    valid = getValidMPTX(hash);
+                                    valid = p_txlistdb->getValidMPTX(hash);
                                     uint32_t omniPropertyId = mp_obj.getProperty();
                                     int64_t omniAmount = mp_obj.getAmount();
                                     if (isPropertyDivisible(omniPropertyId)) {
@@ -344,6 +346,8 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
+    connect(ui->labelWalletStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
+    connect(ui->labelTransactionsStatus, SIGNAL(clicked()), this, SLOT(handleOutOfSyncWarningClicks()));
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -367,6 +371,11 @@ void OverviewPage::handleTransactionClicked(const QModelIndex &index)
     } else {
         // TODO if (filter) emit transactionClicked(filter->mapToSource(index));
     }
+}
+
+void OverviewPage::handleOutOfSyncWarningClicks()
+{
+    Q_EMIT outOfSyncWarningClicked();
 }
 
 OverviewPage::~OverviewPage()

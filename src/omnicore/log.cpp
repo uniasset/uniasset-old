@@ -226,7 +226,7 @@ int ConsolePrint(const std::string& str)
  */
 void InitDebugLogLevels()
 {
-    if (!mapArgs.count("-omnidebug")) {
+    if (!GetBoolArg("-omnidebug", false)) {
         return;
     }
 

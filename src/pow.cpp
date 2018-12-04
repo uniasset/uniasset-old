@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2009-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,8 +17,8 @@
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     int nHeight = pindexLast->nHeight + 1;
-    int DiffMode = 1;
 
+    int DiffMode = 1;
     if (pindexLast->nHeight >= params.nHardForkTwo)
         DiffMode = 2;
 
@@ -108,11 +108,10 @@ unsigned int GetNextWorkRequired_V1(const CBlockIndex* pindexLast, const CBlockH
     if (nActualTimespan > nTargetTimespan*4)
         nActualTimespan = nTargetTimespan*4;
 
-    // Retarget
-    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
     arith_uint256 bnNew;
     bnNew.SetCompact(pindexLast->nBits);
-    bool fShift = bnNew.bits() > 235;
+    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
+    bool fShift = bnNew.bits() > bnPowLimit.bits() - 1;
     if (fShift)
         bnNew >>= 1;
     bnNew *= nActualTimespan;
@@ -302,12 +301,16 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params&
     bnTarget.SetCompact(nBits, &fNegative, &fOverflow);
 
     // Check range
-    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > UintToArith256(params.powLimit))
+    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > UintToArith256(params.powLimit)){
+        MYLOG("(CheckProofOfWork) Check range error. fNegative: %s, fOverflow: %s, bnTarget: %s, powLimit: %s", fNegative, fOverflow, bnTarget.ToString().c_str(), UintToArith256(params.powLimit).ToString().c_str())
         return false;
+    }
 
     // Check proof of work matches claimed amount
-    if (UintToArith256(hash) > bnTarget)
+    if (UintToArith256(hash) > bnTarget) {
+        MYLOG("(CheckProofOfWork) Error proof of work. hash: '%s', target: '%s'", UintToArith256(hash).ToString().c_str(), bnTarget.ToString().c_str());
         return false;
+    }
 
     return true;
 }

@@ -39,7 +39,78 @@
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Excluir</translation>
+        <translation>E&amp;xcluir</translation>
+    </message>
+    <message>
+        <source>Choose the address to send coins to</source>
+        <translation>Escoha o endereço para enviar moedas</translation>
+    </message>
+    <message>
+        <source>Choose the address to receive coins with</source>
+        <translation>Escolha o enereço para receber moedas</translation>
+    </message>
+    <message>
+        <source>C&amp;hoose</source>
+        <translation>Escol&amp;ha</translation>
+    </message>
+    <message>
+        <source>Sending addresses</source>
+        <translation>Endereços de envio</translation>
+    </message>
+    <message>
+        <source>Receiving addresses</source>
+        <translation>Endereços de recebimento</translation>
+    </message>
+    <message>
+        <source>These are your UFO addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Estes são os seus endereços para enviar pagamentos. Sempre cheque a quantia e o endereço do destinatário antes de enviar moedas.</translation>
+    </message>
+    <message>
+        <source>These are your UFO addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>Estes são os seus endereços para receber pagamentos. É recomendado usar um novo para cada transação.</translation>
+    </message>
+    <message>
+        <source>&amp;Copy Address</source>
+        <translation>&amp;Copiar endereço</translation>
+    </message>
+    <message>
+        <source>Copy &amp;Label</source>
+        <translation>Copiar rótu&amp;lo</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Editar</translation>
+    </message>
+    <message>
+        <source>Export Address List</source>
+        <translation>Exportar lista de endereços</translation>
+    </message>
+    <message>
+        <source>Comma separated file (*.csv)</source>
+        <translation>Comma separated file (*.csv)</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Falha na exportação</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <translation>Erro ao salvar a lista de endereço para %1. Tente novamente.</translation>
+    </message>
+</context>
+<context>
+    <name>AddressTableModel</name>
+    <message>
+        <source>Label</source>
+        <translation>Rótulo</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Endereço</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(sem rótulo)</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -231,7 +302,7 @@
     <name>BitcoinGUI</name>
     <message>
         <source>Sign &amp;message...</source>
-        <translation>&amp;Assinar mensagem...</translation>
+        <translation>Assinar &amp;mensagem...</translation>
     </message>
     <message>
         <source>Synchronizing with network...</source>
@@ -314,12 +385,28 @@
         <translation>Abrir &amp;URI...</translation>
     </message>
     <message>
+        <source>Click to disable network activity.</source>
+        <translation>Clique para desativar a atividade de rede.</translation>
+    </message>
+    <message>
+        <source>Network activity disabled.</source>
+        <translation>Atividade de rede desativada.</translation>
+    </message>
+    <message>
+        <source>Click to enable network activity again.</source>
+        <translation>Clique para ativar a atividade de rede.</translation>
+    </message>
+    <message>
+        <source>Syncing Headers (%1%)...</source>
+        <translation>Sincronizando cabeçahos (%1%)...</translation>
+    </message>
+    <message>
         <source>Reindexing blocks on disk...</source>
         <translation>Reindexando blocos no disco...</translation>
     </message>
     <message>
         <source>Send coins to a UFO address</source>
-        <translation>Enviar moedas para um endereço UFO</translation>
+        <translation>Enviar moedas para um endereço ufo</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -359,7 +446,7 @@
     </message>
     <message>
         <source>&amp;Show / Hide</source>
-        <translation>&amp;Exibir/Ocultar</translation>
+        <translation>&amp;Exibir / Ocultar</translation>
     </message>
     <message>
         <source>Show or hide the main Window</source>
@@ -394,8 +481,8 @@
         <translation>Barra de ferramentas</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and uniasset: URIs)</source>
-        <translation>Solicitações de pagamentos (gera códigos QR e uniasset: URIs)</translation>
+        <source>Request payments (generates QR codes and ufo: URIs)</source>
+        <translation>Solicitações de pagamentos (gera códigos QR e ufo: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -406,8 +493,8 @@
         <translation>Mostrar a lista de endereços de recebimento usados ​​e rótulos</translation>
     </message>
     <message>
-        <source>Open a uniasset: URI or payment request</source>
-        <translation>Abrir um uniasset: URI ou cobrança</translation>
+        <source>Open a ufo: URI or payment request</source>
+        <translation>Abrir um ufo: URI ou cobrança</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -425,33 +512,9 @@
         <source>Processing blocks on disk...</source>
         <translation>Processando blocos no disco...</translation>
     </message>
-    <message>
-        <source>No block source available...</source>
-        <translation>Nenhum servidor disponível...</translation>
-    </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation><numerusform>%n bloco processado do histórico de transações.</numerusform><numerusform>%n blocos processados do histórico de transações.</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation><numerusform>%n hora</numerusform><numerusform>%n horas</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation><numerusform>%n dia</numerusform><numerusform>%n dias</numerusform></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation><numerusform>%n semana</numerusform><numerusform>%n semanas</numerusform></translation>
-    </message>
-    <message>
-        <source>%1 and %2</source>
-        <translation>%1 e %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation><numerusform>%n ano</numerusform><numerusform>%n anos</numerusform></translation>
     </message>
     <message>
         <source>%1 behind</source>
@@ -487,7 +550,11 @@
     </message>
     <message>
         <source>%1 client</source>
-        <translation>%1</translation>
+        <translation>%1 cliente</translation>
+    </message>
+    <message>
+        <source>Connecting to peers...</source>
+        <translation>Conectando...</translation>
     </message>
     <message>
         <source>Catching up...</source>
@@ -532,12 +599,24 @@
         <translation>Transação recebida</translation>
     </message>
     <message>
+        <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
+        <translation>Geração de chave HD está &lt;b&gt;ativada&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>HD key generation is &lt;b&gt;disabled&lt;/b&gt;</source>
+        <translation>Geração de chave HD está &lt;b&gt;desativada&lt;/b&gt;</translation>
+    </message>
+    <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
         <translation>Carteira está &lt;b&gt;criptografada&lt;/b&gt; e atualmente &lt;b&gt;desbloqueada&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>Carteira está &lt;b&gt;criptografada&lt;/b&gt; e atualmente &lt;b&gt;bloqueada&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. UFO can no longer continue safely and will quit.</source>
+        <translation>Um erro fatal ocorreu. UFO não pode continuar em segurança e irá fechar.</translation>
     </message>
 </context>
 <context>
@@ -557,10 +636,6 @@
     <message>
         <source>Amount:</source>
         <translation>Quantia:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioridade:</translation>
     </message>
     <message>
         <source>Fee:</source>
@@ -596,11 +671,11 @@
     </message>
     <message>
         <source>Received with label</source>
-        <translation>Recebido com rótulo</translation>
+        <translation>Rótulo</translation>
     </message>
     <message>
         <source>Received with address</source>
-        <translation>Recebido com endereço </translation>
+        <translation>Endereço </translation>
     </message>
     <message>
         <source>Date</source>
@@ -615,8 +690,84 @@
         <translation>Confirmado</translation>
     </message>
     <message>
-        <source>Priority</source>
-        <translation>Prioridade</translation>
+        <source>Copy address</source>
+        <translation>Copiar endereço</translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Copiar rótulo</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Copiar quantia</translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Copiar ID da transação</translation>
+    </message>
+    <message>
+        <source>Lock unspent</source>
+        <translation>Boquear saída</translation>
+    </message>
+    <message>
+        <source>Unlock unspent</source>
+        <translation>Desboquear saída</translation>
+    </message>
+    <message>
+        <source>Copy quantity</source>
+        <translation>Copiar quantia</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation>Copiar taxa</translation>
+    </message>
+    <message>
+        <source>Copy after fee</source>
+        <translation>Copiar pós taxa</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation>Copiar bytes</translation>
+    </message>
+    <message>
+        <source>Copy dust</source>
+        <translation>Copiar poeira</translation>
+    </message>
+    <message>
+        <source>Copy change</source>
+        <translation>Copiar troco</translation>
+    </message>
+    <message>
+        <source>(%1 locked)</source>
+        <translation>(%1 bloqueada)</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation>sim</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>não</translation>
+    </message>
+    <message>
+        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
+        <translation>Este texto fica vermelho se qualquer destinatário receber uma quantidade menor que que o dust.</translation>
+    </message>
+    <message>
+        <source>Can vary +/- %1 satoshi(s) per input.</source>
+        <translation>Pode variar +/- %1 satoshi(s) por entrada</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(sem rótulo)</translation>
+    </message>
+    <message>
+        <source>change from %1 (%2)</source>
+        <translation>troco de %1 (%2)</translation>
+    </message>
+    <message>
+        <source>(change)</source>
+        <translation>(troco)</translation>
     </message>
     <message>
         <source>Copy address</source>
@@ -940,6 +1091,57 @@
     </message>
 </context>
 <context>
+    <name>ModalOverlay</name>
+    <message>
+        <source>Form</source>
+        <translation>Formulário</translation>
+    </message>
+    <message>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the ufo network, as detailed below.</source>
+        <translation>Transações recentes podem não estar visíveis ainda, portanto o seu saldo pode estar incorreto. Esta informação será corrigida assim que sua carteira for sincronizada com a rede, como detalhado abaixo.</translation>
+    </message>
+    <message>
+        <source>Attempting to spend ufo that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation>Gastar moedas de transações desconhecidas podem não ser aceitas pela rede.</translation>
+    </message>
+    <message>
+        <source>Number of blocks left</source>
+        <translation>Número de blocos restantes</translation>
+    </message>
+    <message>
+        <source>Unknown...</source>
+        <translation>Desconhecido...</translation>
+    </message>
+    <message>
+        <source>Last block time</source>
+        <translation>Horário do último bloco</translation>
+    </message>
+    <message>
+        <source>Progress</source>
+        <translation>Progresso</translation>
+    </message>
+    <message>
+        <source>Progress increase per hour</source>
+        <translation>Aumento do progresso por hora</translation>
+    </message>
+    <message>
+        <source>calculating...</source>
+        <translation>calculando...</translation>
+    </message>
+    <message>
+        <source>Estimated time left until synced</source>
+        <translation>Tempo estimado para sincronizar</translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation>Ocultar</translation>
+    </message>
+    <message>
+        <source>Unknown. Syncing Headers (%1)...</source>
+        <translation>Desconhecido. Sincroniando cabeçahos (%1)...</translation>
+    </message>
+</context>
+<context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open URI</source>
@@ -1154,7 +1356,7 @@
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>Escolha a unidade padrão de subdivisão para interface mostrar quando enviar UFO.</translation>
+        <translation>Escolha a unidade padrão de subdivisão para interface mostrar quando enviar ufo.</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -1279,8 +1481,8 @@
         <translation>Erro no pedido de pagamento</translation>
     </message>
     <message>
-        <source>Cannot start uniasset: click-to-pay handler</source>
-        <translation>Não foi possível iniciar uniasset: manipulador click-to-pay</translation>
+        <source>Cannot start ufo: click-to-pay handler</source>
+        <translation>Não foi possível iniciar ufo: manipulador click-to-pay</translation>
     </message>
     <message>
         <source>URI handling</source>
@@ -1374,7 +1576,11 @@
         <translation>Nó/Serviço</translation>
     </message>
     <message>
-        <source>Ping Time</source>
+        <source>NodeId</source>
+        <translation>ID do nó</translation>
+    </message>
+    <message>
+        <source>Ping</source>
         <translation>Ping</translation>
     </message>
 </context>
@@ -1415,6 +1621,72 @@
     <message>
         <source>%1 ms</source>
         <translation>%1 ms</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n second(s)</source>
+        <translation><numerusform>%n segundo</numerusform><numerusform>%n segundos</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n minute(s)</source>
+        <translation><numerusform>%n minuto</numerusform><numerusform>%n minutos</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation><numerusform>%n hora</numerusform><numerusform>%n horas</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n day(s)</source>
+        <translation><numerusform>%n dia</numerusform><numerusform>%n dias</numerusform></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n week(s)</source>
+        <translation><numerusform>%n semana</numerusform><numerusform>%n semanas</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 e %2</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n year(s)</source>
+        <translation><numerusform>%n ano</numerusform><numerusform>%n anos</numerusform></translation>
+    </message>
+    <message>
+        <source>%1 didn't yet exit safely...</source>
+        <translation>%1 ainda não terminou com segurança...</translation>
+    </message>
+</context>
+<context>
+    <name>QObject::QObject</name>
+    <message>
+        <source>Error: Specified data directory "%1" does not exist.</source>
+        <translation>Erro: diretório de dados especificado "%1" não existe.</translation>
+    </message>
+    <message>
+        <source>Error: Cannot parse configuration file: %1. Only use key=value syntax.</source>
+        <translation>Erro: Não foi possível interpretar arquivo de configuração: %1. Utilize apenas a sintaxe chave=valor.</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Erro: %1</translation>
+    </message>
+</context>
+<context>
+    <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image...</source>
+        <translation>&amp;Savar imagem</translation>
+    </message>
+    <message>
+        <source>&amp;Copy Image</source>
+        <translation>&amp;Copiar imagem</translation>
+    </message>
+    <message>
+        <source>Save QR Code</source>
+        <translation>Salvar código QR</translation>
+    </message>
+    <message>
+        <source>PNG Image (*.png)</source>
+        <translation>Imagem PNG (*.png)</translation>
     </message>
 </context>
 <context>
@@ -1595,6 +1867,10 @@
         <translation>Espera de ping</translation>
     </message>
     <message>
+        <source>Min Ping</source>
+        <translation>Ping min</translation>
+    </message>
+    <message>
         <source>Time Offset</source>
         <translation>Offset de tempo</translation>
     </message>
@@ -1639,14 +1915,6 @@
         <translation>Limpar console</translation>
     </message>
     <message>
-        <source>&amp;Disconnect Node</source>
-        <translation>&amp;Desconectar Nó</translation>
-    </message>
-    <message>
-        <source>Ban Node for</source>
-        <translation>Banir nó por</translation>
-    </message>
-    <message>
         <source>1 &amp;hour</source>
         <translation>1 &amp;hora</translation>
     </message>
@@ -1663,8 +1931,16 @@
         <translation>1 &amp;ano</translation>
     </message>
     <message>
-        <source>&amp;Unban Node</source>
-        <translation>&amp;Desbanir nó</translation>
+        <source>&amp;Disconnect</source>
+        <translation>&amp;Desconectar</translation>
+    </message>
+    <message>
+        <source>Ban for</source>
+        <translation>Banir por</translation>
+    </message>
+    <message>
+        <source>&amp;Unban</source>
+        <translation>&amp;Desbanir</translation>
     </message>
     <message>
         <source>Welcome to the %1 RPC console.</source>
@@ -1677,6 +1953,14 @@
     <message>
         <source>Type &lt;b&gt;help&lt;/b&gt; for an overview of available commands.</source>
         <translation>Digite &lt;b&gt;help&lt;/b&gt; para uma visão geral dos comandos disponíveis.</translation>
+    </message>
+    <message>
+        <source>WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramification of a command.</source>
+        <translation>AVISO: Scammers atacam essa área, dizendo aos usuários que comandos digitar aqui, roubando informações da carteira. Não use este console sem entender completamente as ramificações do comando.</translation>
+    </message>
+    <message>
+        <source>Network activity disabled</source>
+        <translation>Atividade da rede disativada</translation>
     </message>
     <message>
         <source>%1 B</source>
@@ -1798,6 +2082,10 @@
         <translation>Remover</translation>
     </message>
     <message>
+        <source>Copy URI</source>
+        <translation>Copiar URI</translation>
+    </message>
+    <message>
         <source>Copy label</source>
         <translation>Copiar rótulo</translation>
     </message>
@@ -1850,7 +2138,7 @@
     </message>
     <message>
         <source>Label</source>
-        <translation>Rótuo</translation>
+        <translation>Rótulo</translation>
     </message>
     <message>
         <source>Message</source>
@@ -1873,7 +2161,7 @@
     </message>
     <message>
         <source>Label</source>
-        <translation>Rótuo</translation>
+        <translation>Rótulo</translation>
     </message>
     <message>
         <source>Message</source>
@@ -1881,7 +2169,7 @@
     </message>
     <message>
         <source>(no label)</source>
-        <translation>(sem rótuo)</translation>
+        <translation>(sem rótulo)</translation>
     </message>
     <message>
         <source>(no message)</source>
@@ -1899,40 +2187,36 @@
 <context>
     <name>SendCoinsDialog</name>
     <message>
-        <source>Send Coins</source>
-        <translation>Enviar moedas</translation>
+        <source>Request payment to %1</source>
+        <translation>Pedido de pagamento para %1</translation>
     </message>
     <message>
-        <source>Coin Control Features</source>
-        <translation>Opções de controle de moeda</translation>
+        <source>Payment information</source>
+        <translation>Informação do pagamento</translation>
     </message>
     <message>
-        <source>Inputs...</source>
-        <translation>Entradas...</translation>
+        <source>URI</source>
+        <translation>URI</translation>
     </message>
     <message>
-        <source>automatically selected</source>
-        <translation>automaticamente selecionado</translation>
+        <source>Address</source>
+        <translation>Endereço</translation>
     </message>
     <message>
-        <source>Insufficient funds!</source>
-        <translation>Saldo insuficiente!</translation>
+        <source>Amount</source>
+        <translation>Quantia</translation>
     </message>
     <message>
-        <source>Quantity:</source>
-        <translation>Quantidade:</translation>
+        <source>Label</source>
+        <translation>Rótuo</translation>
     </message>
     <message>
-        <source>Bytes:</source>
-        <translation>Bytes:</translation>
+        <source>Message</source>
+        <translation>Mensagem</translation>
     </message>
     <message>
-        <source>Amount:</source>
-        <translation>Quantia:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation>Prioridade:</translation>
+        <source>Resulting URI too long, try to reduce the text for label / message.</source>
+        <translation>URI resultante muito longa. Tente reduzir o texto do rótulo ou da mensagem.</translation>
     </message>
     <message>
         <source>Fee:</source>
@@ -1983,7 +2267,7 @@
         <translation>pelo menos</translation>
     </message>
     <message>
-        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for UFO transactions than the network can process.</source>
+        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for ufo transactions than the network can process.</source>
         <translation>Pagando apenas a taxa mínima é bom, desde que haja pouco volume de transações. Mas esteja ciente de que isso pode acabar em uma transação nunca confirmanda uma vez que há mais demanda por transações do que a rede pode processar.</translation>
     </message>
     <message>
@@ -2001,10 +2285,6 @@
     <message>
         <source>(Smart fee not initialized yet. This usually takes a few blocks...)</source>
         <translation>(Smart fee não iniciado. Isso requer alguns blocos...)</translation>
-    </message>
-    <message>
-        <source>Confirmation time:</source>
-        <translation>Tempo de confirmação:</translation>
     </message>
     <message>
         <source>normal</source>
@@ -2029,6 +2309,10 @@
     <message>
         <source>Dust:</source>
         <translation>Poeira:</translation>
+    </message>
+    <message>
+        <source>Confirmation time target:</source>
+        <translation>Confirmando tempo alvo:</translation>
     </message>
     <message>
         <source>Clear &amp;All</source>
@@ -2065,10 +2349,6 @@
     <message>
         <source>Copy bytes</source>
         <translation>Copiar bytes</translation>
-    </message>
-    <message>
-        <source>Copy priority</source>
-        <translation>Copiar prioridade</translation>
     </message>
     <message>
         <source>Copy dust</source>
@@ -2127,8 +2407,8 @@
         <translation>Falha na criação da transação</translation>
     </message>
     <message>
-        <source>The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of wallet.dat and coins were spent in the copy but not marked as spent here.</source>
-        <translation>A transação foi rejeitada! Isso pode acontecer se algumas moedas na sua carteira já foram gastas em outro local, por exemplo se você tiver uma cópia da carteira e as moedas tiverem sido gastas na cópia mas não marcados como gastas aqui ainda.</translation>
+        <source>The transaction was rejected with the following reason: %1</source>
+        <translation>A transação foi negada pela seguinte razão: %1</translation>
     </message>
     <message>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
@@ -2138,13 +2418,17 @@
         <source>Payment request expired.</source>
         <translation>Pedido de pagamento expirado</translation>
     </message>
+    <message numerus="yes">
+        <source>%n block(s)</source>
+        <translation><numerusform>%n bloco</numerusform><numerusform>%n blocos</numerusform></translation>
+    </message>
     <message>
         <source>Pay only the required fee of %1</source>
         <translation>Pagar somente a taxa requerida de %1</translation>
     </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation><numerusform>Estimado a começar confirmação em %n bloco(s).</numerusform><numerusform>Estimado começar confirmação em %n bloco(s).</numerusform></translation>
+        <translation><numerusform>Confirmação em %n bloco.</numerusform><numerusform>Confirmação em %n blocos.</numerusform></translation>
     </message>
     <message>
         <source>Warning: Invalid UFO address</source>
@@ -2155,8 +2439,16 @@
         <translation>Aviso: Endereço de troco inválido</translation>
     </message>
     <message>
+        <source>Confirm custom change address</source>
+        <translation>Confirmar endereço de troco personalizado</translation>
+    </message>
+    <message>
+        <source>The address you selected for change is not part of this wallet. Any or all funds in your wallet may be sent to this address. Are you sure?</source>
+        <translation>O endereço selecionado para o troco não pertence a esta carteira. Alguns ou todos os fundos da sua carteira modem ser mandados para esse endereço. Tem certeza?</translation>
+    </message>
+    <message>
         <source>(no label)</source>
-        <translation>(sem rótuo)</translation>
+        <translation>(sem rótulo)</translation>
     </message>
 </context>
 <context>
@@ -2202,8 +2494,8 @@
         <translation>Remover esta entrada</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less UFO than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation>A taxa será deduzida da quantia que está sendo enviada. O destinatário receberá menos UFO do que você colocou no campo de quantidade. Se vários destinatários estão selecionados, a taxa é dividida igualmente.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less ufo than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation>A taxa será deduzida da quantia que está sendo enviada. O destinatário receberá menos ufo do que você colocou no campo de quantidade. Se vários destinatários estão selecionados, a taxa é dividida igualmente.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2226,8 +2518,8 @@
         <translation>Digite um rótulo para este endereço para adicioná-lo no catálogo</translation>
     </message>
     <message>
-        <source>A message that was attached to the uniasset: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the UFO network.</source>
-        <translation>A mensagem que foi anexada ao uniasset: URI na qual será gravada na transação para sua referência. Nota: Essa mensagem não será gravada publicamente na rede UFO.</translation>
+        <source>A message that was attached to the ufo: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the UFO network.</source>
+        <translation>A mensagem que foi anexada ao ufo: URI na qual será gravada na transação para sua referência. Nota: Essa mensagem não será gravada publicamente na rede UFO.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2252,6 +2544,10 @@
 <context>
     <name>ShutdownWindow</name>
     <message>
+        <source>%1 is shutting down...</source>
+        <translation>%1 está desligando...</translation>
+    </message>
+    <message>
         <source>Do not shut down the computer until this window disappears.</source>
         <translation>Não desligue o computador até que esta janela desapareça.</translation>
     </message>
@@ -2267,8 +2563,8 @@
         <translation>&amp;Assinar mensagem</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive UFO sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation>Você pode assinar mensagens com seus endereços para provar que você pode receber UFO enviados por alguém. Cuidado para não assinar nada vago ou aleatório, pois ataques phishing podem tentar te enganar para assinar coisas para eles como se fosse você. Somente assine termos bem detalhados que você concorde.</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive ufo sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation>Você pode assinar mensagens com seus endereços para provar que você pode receber ufo enviados por alguém. Cuidado para não assinar nada vago ou aleatório, pois ataques phishing podem tentar te enganar para assinar coisas para eles como se fosse você. Somente assine termos bem detalhados que você concorde.</translation>
     </message>
     <message>
         <source>The UFO address to sign the message with</source>
@@ -2413,7 +2709,7 @@
     <name>TransactionDesc</name>
     <message numerus="yes">
         <source>Open for %n more block(s)</source>
-        <translation><numerusform>Aberto para mais %n bloco(s)</numerusform><numerusform>Aberto para mais %n bloco(s)</numerusform></translation>
+        <translation><numerusform>Abrir para mais %n bloco</numerusform><numerusform>Abrir para mais %n blocos</numerusform></translation>
     </message>
     <message>
         <source>Open until %1</source>
@@ -2461,7 +2757,7 @@
     </message>
     <message numerus="yes">
         <source>, broadcast through %n node(s)</source>
-        <translation><numerusform>, propagada por %n nó(s)</numerusform><numerusform>, propagada por %n nó(s)</numerusform></translation>
+        <translation><numerusform>, transmitido aravés de %n nó</numerusform><numerusform>, transmitido aravés de %n nós</numerusform></translation>
     </message>
     <message>
         <source>Date</source>
@@ -2505,7 +2801,7 @@
     </message>
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
-        <translation><numerusform>amadurece em mais %n bloco(s)</numerusform><numerusform>amadurece em mais %n bloco(s)</numerusform></translation>
+        <translation><numerusform>maduro em mais %n bloco</numerusform><numerusform>maduro em mais %n blocos</numerusform></translation>
     </message>
     <message>
         <source>not accepted</source>
@@ -2542,6 +2838,10 @@
     <message>
         <source>Transaction ID</source>
         <translation>ID da transação</translation>
+    </message>
+    <message>
+        <source>Transaction total size</source>
+        <translation>Tamanho tota da transação</translation>
     </message>
     <message>
         <source>Output index</source>
@@ -2585,6 +2885,353 @@
     <message>
         <source>This pane shows a detailed description of the transaction</source>
         <translation>Este painel mostra uma descrição detalhada da transação</translation>
+    </message>
+    <message>
+        <source>Details for %1</source>
+        <translation>Detalhes para %1</translation>
+    </message>
+</context>
+<context>
+    <name>TransactionTableModel</name>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Tipo</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Rótulo</translation>
+    </message>
+    <message numerus="yes">
+        <source>Open for %n more block(s)</source>
+        <translation><numerusform>Aberto por mais %n bloco</numerusform><numerusform>Aberto por mais %n blocos</numerusform></translation>
+    </message>
+    <message>
+        <source>Open until %1</source>
+        <translation>Aberto até %1</translation>
+    </message>
+    <message>
+        <source>Offline</source>
+        <translation>Offline</translation>
+    </message>
+    <message>
+        <source>Unconfirmed</source>
+        <translation>Não confirmado</translation>
+    </message>
+    <message>
+        <source>Abandoned</source>
+        <translation>Abandonado</translation>
+    </message>
+    <message>
+        <source>Confirming (%1 of %2 recommended confirmations)</source>
+        <translation>Confirmando (%1 de %2 confirmações recomendadas)</translation>
+    </message>
+    <message>
+        <source>Confirmed (%1 confirmations)</source>
+        <translation>Confirmado (%1 confirmações)</translation>
+    </message>
+    <message>
+        <source>Conflicted</source>
+        <translation>Conflitado</translation>
+    </message>
+    <message>
+        <source>Immature (%1 confirmations, will be available after %2)</source>
+        <translation>Recém-criado (%1 confirmações, disponível somente após %2)</translation>
+    </message>
+    <message>
+        <source>This block was not received by any other nodes and will probably not be accepted!</source>
+        <translation>Este bloco não foi recebido por nenhum outro participante da rede e provavelmente não será aceito!</translation>
+    </message>
+    <message>
+        <source>Generated but not accepted</source>
+        <translation>Gerado mas não aceito</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation>Recebido</translation>
+    </message>
+    <message>
+        <source>Received from</source>
+        <translation>Recebido</translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation>Enviado para</translation>
+    </message>
+    <message>
+        <source>Payment to yourself</source>
+        <translation>Pagamento para você mesmo</translation>
+    </message>
+    <message>
+        <source>Mined</source>
+        <translation>Minerado</translation>
+    </message>
+    <message>
+        <source>watch-only</source>
+        <translation>monitorado</translation>
+    </message>
+    <message>
+        <source>(n/a)</source>
+        <translation>(n/a)</translation>
+    </message>
+    <message>
+        <source>(no label)</source>
+        <translation>(sem rótulo)</translation>
+    </message>
+    <message>
+        <source>Transaction status. Hover over this field to show number of confirmations.</source>
+        <translation>Status da transação. Passe o mouse sobre este campo para mostrar o número de confirmações.</translation>
+    </message>
+    <message>
+        <source>Date and time that the transaction was received.</source>
+        <translation>Data e hora em que a transação foi recebida.</translation>
+    </message>
+    <message>
+        <source>Type of transaction.</source>
+        <translation>Tipo de transação</translation>
+    </message>
+    <message>
+        <source>Whether or not a watch-only address is involved in this transaction.</source>
+        <translation>Mostrar ou não endereços monitorados na lista de transações.</translation>
+    </message>
+    <message>
+        <source>User-defined intent/purpose of the transaction.</source>
+        <translation>Intenção/Propósito definido pelo usuário para a transação</translation>
+    </message>
+    <message>
+        <source>Amount removed from or added to balance.</source>
+        <translation>Quantidade debitada ou creditada ao saldo.</translation>
+    </message>
+</context>
+<context>
+    <name>TransactionView</name>
+    <message>
+        <source>All</source>
+        <translation>Todos</translation>
+    </message>
+    <message>
+        <source>Today</source>
+        <translation>Hoje</translation>
+    </message>
+    <message>
+        <source>This week</source>
+        <translation>Essa semana</translation>
+    </message>
+    <message>
+        <source>This month</source>
+        <translation>Esse mês</translation>
+    </message>
+    <message>
+        <source>Last month</source>
+        <translation>Último mês</translation>
+    </message>
+    <message>
+        <source>This year</source>
+        <translation>Este ano</translation>
+    </message>
+    <message>
+        <source>Range...</source>
+        <translation>Intervalo...</translation>
+    </message>
+    <message>
+        <source>Received with</source>
+        <translation>Recebido</translation>
+    </message>
+    <message>
+        <source>Sent to</source>
+        <translation>Enviado para</translation>
+    </message>
+    <message>
+        <source>To yourself</source>
+        <translation>Para você mesmo</translation>
+    </message>
+    <message>
+        <source>Mined</source>
+        <translation>Minerado</translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>Outro</translation>
+    </message>
+    <message>
+        <source>Enter address or label to search</source>
+        <translation>Procure um endereço ou rótulo</translation>
+    </message>
+    <message>
+        <source>Min amount</source>
+        <translation>Quantia mínima</translation>
+    </message>
+    <message>
+        <source>Abandon transaction</source>
+        <translation>Transação abandonada</translation>
+    </message>
+    <message>
+        <source>Copy address</source>
+        <translation>Copiar endereço</translation>
+    </message>
+    <message>
+        <source>Copy label</source>
+        <translation>Copiar rótulo</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation>Copiar quantia</translation>
+    </message>
+    <message>
+        <source>Copy transaction ID</source>
+        <translation>Copiar ID da transação</translation>
+    </message>
+    <message>
+        <source>Copy raw transaction</source>
+        <translation>Copiar o raw da transação</translation>
+    </message>
+    <message>
+        <source>Copy full transaction details</source>
+        <translation>Copiar dados completos da transação</translation>
+    </message>
+    <message>
+        <source>Edit label</source>
+        <translation>Editar rótulo</translation>
+    </message>
+    <message>
+        <source>Show transaction details</source>
+        <translation>Mostrar detalhes da transação</translation>
+    </message>
+    <message>
+        <source>Export Transaction History</source>
+        <translation>Exportar histórico de transações</translation>
+    </message>
+    <message>
+        <source>Comma separated file (*.csv)</source>
+        <translation>Comma separated file (*.csv)</translation>
+    </message>
+    <message>
+        <source>Confirmed</source>
+        <translation>Confirmado</translation>
+    </message>
+    <message>
+        <source>Watch-only</source>
+        <translation>Monitorado</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Data</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Tipo</translation>
+    </message>
+    <message>
+        <source>Label</source>
+        <translation>Rótulo</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Endereço</translation>
+    </message>
+    <message>
+        <source>ID</source>
+        <translation>ID</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Falha na exportação</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the transaction history to %1.</source>
+        <translation>Ocorreu um erro ao tentar salvar o histórico de transações em %1.</translation>
+    </message>
+    <message>
+        <source>Exporting Successful</source>
+        <translation>Exportação feita com êxito</translation>
+    </message>
+    <message>
+        <source>The transaction history was successfully saved to %1.</source>
+        <translation>O histórico de transação foi gravado com êxito em %1.</translation>
+    </message>
+    <message>
+        <source>Range:</source>
+        <translation>Intervalo: </translation>
+    </message>
+    <message>
+        <source>to</source>
+        <translation>para</translation>
+    </message>
+    <message>
+        <source>Click "Sign Message" to generate signature</source>
+        <translation>Clique em "Assinar mensagem" para gerar a assinatura</translation>
+    </message>
+    <message>
+        <source>The entered address is invalid.</source>
+        <translation>O endereço digitado é inválido</translation>
+    </message>
+    <message>
+        <source>Please check the address and try again.</source>
+        <translation>Favor checar o endereço e tente novamente</translation>
+    </message>
+    <message>
+        <source>The entered address does not refer to a key.</source>
+        <translation>O endereço fornecido não se refere a uma chave.</translation>
+    </message>
+    <message>
+        <source>Wallet unlock was cancelled.</source>
+        <translation>O desbloqueio da carteira foi cancelado</translation>
+    </message>
+    <message>
+        <source>Private key for the entered address is not available.</source>
+        <translation>A chave privada do endereço inserido não está disponível</translation>
+    </message>
+    <message>
+        <source>Message signing failed.</source>
+        <translation>Falha ao assinar mensagem</translation>
+    </message>
+    <message>
+        <source>Message signed.</source>
+        <translation>Mensagem assinada</translation>
+    </message>
+    <message>
+        <source>The signature could not be decoded.</source>
+        <translation>A assinatura não pode ser descodificada</translation>
+    </message>
+    <message>
+        <source>Please check the signature and try again.</source>
+        <translation>Favor checar a assinatura e tente novamente</translation>
+    </message>
+    <message>
+        <source>The signature did not match the message digest.</source>
+        <translation>A assinatura não corresponde a mensagem</translation>
+    </message>
+    <message>
+        <source>Message verification failed.</source>
+        <translation>Falha na verificação da mensagem</translation>
+    </message>
+    <message>
+        <source>Message verified.</source>
+        <translation>Mensagem verificada</translation>
+    </message>
+</context>
+<context>
+    <name>UnitDisplayStatusBarControl</name>
+    <message>
+        <source>Unit to show amounts in. Click to select another unit.</source>
+        <translation>Unidade para mostrar. Clique para selecionar outra unidade.</translation>
+    </message>
+</context>
+<context>
+    <name>WalletFrame</name>
+    <message>
+        <source>No wallet has been loaded.</source>
+        <translation>Nenhuma carteira carregada</translation>
+    </message>
+</context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation>Enviar moedas</translation>
     </message>
     <message>
         <source>Details for %1</source>
@@ -2862,10 +3509,38 @@
     </message>
 </context>
 <context>
-    <name>UnitDisplayStatusBarControl</name>
+    <name>WalletView</name>
     <message>
-        <source>Unit to show amounts in. Click to select another unit.</source>
-        <translation>Unidade para mostrar. Clique para selecionar outra unidade.</translation>
+        <source>&amp;Export</source>
+        <translation>&amp;Exportar</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Exportar os dados da guia atual para um arquivo</translation>
+    </message>
+    <message>
+        <source>Backup Wallet</source>
+        <translation>Backup da carteira</translation>
+    </message>
+    <message>
+        <source>Wallet Data (*.dat)</source>
+        <translation>Dados da carteira (*.dat)</translation>
+    </message>
+    <message>
+        <source>Backup Failed</source>
+        <translation>Falha no backup</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the wallet data to %1.</source>
+        <translation>Ocorreu um erro ao tentar salvar os dados da carteira em %1.</translation>
+    </message>
+    <message>
+        <source>Backup Successful</source>
+        <translation>Êxito no backup</translation>
+    </message>
+    <message>
+        <source>The wallet data was successfully saved to %1.</source>
+        <translation>Os dados da carteira foram salvos com êxito em %1.</translation>
     </message>
 </context>
 <context>
@@ -2940,6 +3615,18 @@
         <translation>Aceitar linha de comando e comandos JSON-RPC</translation>
     </message>
     <message>
+        <source>Accept connections from outside (default: 1 if no -proxy or -connect/-noconnect)</source>
+        <translation>Aceitar conecções de entrada (padrão: 1 sem -proxy ou -connect/-noconnect)</translation>
+    </message>
+    <message>
+        <source>Connect only to the specified node(s); -noconnect or -connect=0 alone to disable automatic connections</source>
+        <translation>Conectar somente a nós específicos; -noconnect ou -connect=0 sozinhos para desativar conecções automáticas</translation>
+    </message>
+    <message>
+        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
+        <translation>Distribuído sob a MIT software license, veja o arquivo %s ou %s</translation>
+    </message>
+    <message>
         <source>If &lt;category&gt; is not supplied or if &lt;category&gt; = 1, output all debugging information.</source>
         <translation>Se &lt;category&gt; não for suprida ou se &lt;category&gt; = 1, mostrar toda informação de depuração.</translation>
     </message>
@@ -2950,10 +3637,6 @@
     <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
         <translation>Prune: A ultima sincronização da carteira foi além do dado comprimido. Você precisa reindexar (fazer o download de toda a blockchain novamente)</translation>
-    </message>
-    <message>
-        <source>Reduce storage requirements by pruning (deleting) old blocks. This mode is incompatible with -txindex and -rescan. Warning: Reverting this setting requires re-downloading the entire blockchain. (default: 0 = disable pruning blocks, &gt;%u = target size in MiB to use for block files)</source>
-        <translation>Reduza o armazenamento de dados apagando os blocos mais antigos. Esse modo é incompatível com -txindex e -rescan. Cuidado: Reverter essa configuração requer um novo download de toda a blockchain. (Padrão: 0 = desabilitado, &gt;%u = tamanho em MiB para o uso de blocos cortados)</translation>
     </message>
     <message>
         <source>Rescans are not possible in pruned mode. You will need to use -reindex which will download the whole blockchain again.</source>
@@ -2980,16 +3663,12 @@
         <translation>Não foi possível iniciar o servidor HTTP. Veja o log para detaihes.</translation>
     </message>
     <message>
-        <source>Accept connections from outside (default: 1 if no -proxy or -connect)</source>
-        <translation>Aceitar conexões externas (padrão: 1 se opções -proxy ou -connect não estiverem presentes)</translation>
-    </message>
-    <message>
         <source>UFO Core</source>
         <translation>UFO Core</translation>
     </message>
     <message>
-        <source>-fallbackfee is set very high! This is the transaction fee you may pay when fee estimates are not available.</source>
-        <translation>-fallbackfee está muito alta! Essa é a taxa de transação que você vai pagar quando a taxa estimada não estiver disponível.</translation>
+        <source>The %s developers</source>
+        <translation>Desenvolvedores do %s</translation>
     </message>
     <message>
         <source>A fee rate (in %s/kB) that will be used when fee estimation has insufficient data (default: %s)</source>
@@ -3012,14 +3691,6 @@
         <translation>Apaga todas as transações da carteira e somente recupera essas partes da blockchain usando o comando -rescan na inicialização</translation>
     </message>
     <message>
-        <source>Distributed under the MIT software license, see the accompanying file COPYING or &lt;http://www.opensource.org/licenses/mit-license.php&gt;.</source>
-        <translation>Distribuido sob a licença MIT software license. Veja os termos em &lt;http://www.opensource.org/licenses/mit-license.php&gt;.</translation>
-    </message>
-    <message>
-        <source>Equivalent bytes per sigop in transactions for relay and mining (default: %u)</source>
-        <translation>Número mínimo de bytes por assinatura em transações que transmitimos e mineramos (default: %u)</translation>
-    </message>
-    <message>
         <source>Error loading %s: You can't enable HD on a already existing non-HD wallet</source>
         <translation>Erro ao carregar %s. Não é permitido habilitar HD em carteiras não-HD pre existentes.</translation>
     </message>
@@ -3030,6 +3701,14 @@
     <message>
         <source>Execute command when a wallet transaction changes (%s in cmd is replaced by TxID)</source>
         <translation>Executa um comando quando uma transação da carteira mudar (%s no comando será substituído por TxID)</translation>
+    </message>
+    <message>
+        <source>Extra transactions to keep in memory for compact block reconstructions (default: %u)</source>
+        <translation>Transações extras para manter na memória para reconstruções de blocos compactos (padrão: %u)</translation>
+    </message>
+    <message>
+        <source>If this block is in the chain assume that it and its ancestors are valid and potentially skip their script verification (0 to verify all, default: %s, testnet: %s)</source>
+        <translation>Se este bloco está no blockchain, assume-se que ele e seus ancestrais são válidos e podem ignorar a verificação de scripts (0 para verificar todos, padrão: %s, testnet: %s)</translation>
     </message>
     <message>
         <source>Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)</source>
@@ -3048,6 +3727,14 @@
         <translation>Por favor contribua se você entender que %s é útil. Visite %s para mais informações sobre o software.</translation>
     </message>
     <message>
+        <source>Reduce storage requirements by enabling pruning (deleting) of old blocks. This allows the pruneblockchain RPC to be called to delete specific blocks, and enables automatic pruning of old blocks if a target size in MiB is provided. This mode is incompatible with -txindex and -rescan. Warning: Reverting this setting requires re-downloading the entire blockchain. (default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, &gt;%u = automatically prune block files to stay under the specified target size in MiB)</source>
+        <translation>Reduz o requerimente de espaço habiitando o pruning (apagando) blocos antigos. Isso permite o chamar o comando pruneblockchain via RPC para apagar blocos específicos, e habiita o pruning automático de blocos antigos se o tamanho em MiB for atingido. Esse modo é incompatíve com -txindex e -rescan. Aviso: Reverter essa configuração requer re-baixar o blockchain inteiro. (padrão: 0 = disabilitado, 1 = permite o pruning manua via RPC, &gt;%u = pruna os blocos para ficar abaixo do expecificado, em MiB)</translation>
+    </message>
+    <message>
+        <source>Set lowest fee rate (in %s/kB) for transactions to be included in block creation. (default: %s)</source>
+        <translation>Taxa (em %s/KiB) a ser adicionada às transações que você mandar (padrão: %s)</translation>
+    </message>
+    <message>
         <source>Set the number of script verification threads (%u to %d, 0 = auto, &lt;0 = leave that many cores free, default: %d)</source>
         <translation>Define o número de threads de verificação de script (%u a %d, 0 = automático, &lt;0 = número de cores deixados livres, padrão: %d)</translation>
     </message>
@@ -3057,7 +3744,11 @@
     </message>
     <message>
         <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation>Este pode ser um build de teste pré-lançamento - use por sua conta e risco - não use para mineração ou aplicações de comércio.</translation>
+        <translation>Este é um build de teste pré-lançamento - use por sua conta e risco - não use para mineração ou comércio.</translation>
+    </message>
+    <message>
+        <source>Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain</source>
+        <translation>Não foi possível reanalisar o banco de dados para o estado pre-fork. Você precisa rebaixar o blockchain</translation>
     </message>
     <message>
         <source>Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain</source>
@@ -3068,16 +3759,28 @@
         <translation>Use UPnP para mapear a porta escutada (padrão: 1 quando escutando e sem -proxy)</translation>
     </message>
     <message>
+        <source>Username and hashed password for JSON-RPC connections. The field &lt;userpw&gt; comes in the format: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. A canonical python script is included in share/rpcuser. The client then connects normally using the rpcuser=&lt;USERNAME&gt;/rpcpassword=&lt;PASSWORD&gt; pair of arguments. This option can be specified multiple times</source>
+        <translation>Nome de usuário e hash da senha para conexões JSON-RPC. O campo &lt;userpw&gt; vem com o formato: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. Um script python canônico é incluído em share/rpcuser. O cliente pode conectar normalmente usando o rpcuser=&lt;USERNAME&gt;/rpcpassword=&lt;PASSWORD&gt;. Esta opção pode ser especificado multiplas vezes</translation>
+    </message>
+    <message>
+        <source>Wallet will not create transactions that violate mempool chain limits (default: %u)</source>
+        <translation>A carteira não irá criar transações que vioem o imite de memória (padrão: %u)</translation>
+    </message>
+    <message>
         <source>Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.</source>
         <translation>Atenção: A rede não parecem concordar plenamente! Alguns mineiros parecem estar enfrentando problemas.</translation>
     </message>
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation>Atenção: Nós não parecemos concordar plenamente com nossos colegas! Você pode precisar atualizar ou outros nós podem precisar atualizar.</translation>
+        <translation>Atenção: Nós não parecemos concordar plenamente com nossos nós! Você pode precisar atualizar ou outros nós podem precisar atualizar.</translation>
     </message>
     <message>
-        <source>Whitelist peers connecting from the given netmask or IP address. Can be specified multiple times.</source>
-        <translation>Lista Branca pares de ligação da máscara de rede dado ou o endereço IP . Pode ser especificado várias vezes.</translation>
+        <source>You need to rebuild the database using -reindex-chainstate to change -txindex</source>
+        <translation>Você precisa reconstruir o banco de dados utilizando -reindex-chainstate para mudar -txindex</translation>
+    </message>
+    <message>
+        <source>%s corrupt, salvage failed</source>
+        <translation>%s corrompido, recuperação falhou</translation>
     </message>
     <message>
         <source>You need to rebuild the database using -reindex-chainstate to change -txindex</source>
@@ -3112,12 +3815,12 @@
         <translation>Impossível resolver  -%s endereço: '%s'</translation>
     </message>
     <message>
-        <source>Change index out of range</source>
-        <translation>Índice de mudança fora da faixa.</translation>
+        <source>Chain selection options:</source>
+        <translation>Opções da rede:</translation>
     </message>
     <message>
-        <source>Connect only to the specified node(s)</source>
-        <translation>Conectar apenas a cliente(s) específico(s)</translation>
+        <source>Change index out of range</source>
+        <translation>Índice de mudança fora da faixa.</translation>
     </message>
     <message>
         <source>Connection options:</source>
@@ -3253,7 +3956,7 @@
     </message>
     <message>
         <source>Print version and exit</source>
-        <translation>Imprimir versão e sair</translation>
+        <translation>Mostra a versão e fecha</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>
@@ -3292,10 +3995,6 @@
         <translation>Especifique o arquivo da carteira (dentro do diretório de dados)</translation>
     </message>
     <message>
-        <source>Starting network threads...</source>
-        <translation>Iniciando análise da rede...</translation>
-    </message>
-    <message>
         <source>The source code is available from %s.</source>
         <translation>O código fonte está disponível pelo %s</translation>
     </message>
@@ -3314,6 +4013,10 @@
     <message>
         <source>Use UPnP to map the listening port (default: %u)</source>
         <translation>Use UPnP para mapear a porta de entrada (padrão: %u)</translation>
+    </message>
+    <message>
+        <source>Use the test chain</source>
+        <translation>Usar a rede de testes</translation>
     </message>
     <message>
         <source>User Agent comment (%s) contains unsafe characters.</source>
@@ -3369,7 +4072,7 @@
     </message>
     <message>
         <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
-        <translation>Executa um comando quando um alerta relevante é recebido ou vemos uma longa segregação (%s em cmd é substituído pela mensagem)</translation>
+        <translation>Executa um comando quando um alerta relevante é recebido ou vemos uma longa segregação (%s é substituída pela mensagem)</translation>
     </message>
     <message>
         <source>Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)</source>
@@ -3392,10 +4095,6 @@
         <translation>Tamanho máximo de dados em transações de dados de operadora (padrão %u)</translation>
     </message>
     <message>
-        <source>Query for peer addresses via DNS lookup, if low on addresses (default: 1 unless -connect)</source>
-        <translation>Buscar por endereços de peers via busca DNS, se estiver baixo em endereços (padrão: 1 a não ser que -connect)</translation>
-    </message>
-    <message>
         <source>Randomize credentials for every proxy connection. This enables Tor stream isolation (default: %u)</source>
         <translation>Gerar credenciais aleatórias para cada conexão por proxy. Isto habilita o isolamento de stream do Tor (padrão: %u)</translation>
     </message>
@@ -3408,8 +4107,8 @@
         <translation>A quantia da transação é muito pequena para mandar </translation>
     </message>
     <message>
-        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit &lt;https://www.openssl.org/&gt; and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
-        <translation>Esse produto inclui software desenvolvido pelo Open SSL Project para uso na OpenSSL Toolkit &lt;https://www.openssl.org&gt; e software criptográfico escrito por Eric Young e software UPnP escrito por Thomas Bernard. </translation>
+        <source>Use hierarchical deterministic key generation (HD) after BIP32. Only has effect during wallet creation/first start</source>
+        <translation>Usar carteira HD. Somente tem efeito na criação de uma nova carteira</translation>
     </message>
     <message>
         <source>Use hierarchical deterministic key generation (HD) after BIP32. Only has effect during wallet creation/first start</source>
@@ -3524,10 +4223,6 @@
         <translation>Quantidade da transação muito pequena.</translation>
     </message>
     <message>
-        <source>Transaction amounts must be positive</source>
-        <translation>As quantidades das transações devem ser positivas.</translation>
-    </message>
-    <message>
         <source>Transaction too large for fee policy</source>
         <translation>Transação muito grande para enviar sem taxa</translation>
     </message>
@@ -3592,16 +4287,20 @@
         <translation>-maxtxfee é muito alto! Essa quantia poderia ser paga em uma única transação.</translation>
     </message>
     <message>
-        <source>-paytxfee is set very high! This is the transaction fee you will pay if you send a transaction.</source>
-        <translation>-paytxfee é muito alto! Este é o valor da taxa de transação que você irá pagar se enviar a transação.</translation>
-    </message>
-    <message>
         <source>Do not keep transactions in the mempool longer than &lt;n&gt; hours (default: %u)</source>
         <translation>Não manter transações na mempool por mais que &lt;n&gt; horas (padrão: %u)</translation>
     </message>
     <message>
+        <source>Equivalent bytes per sigop in transactions for relay and mining (default: %u)</source>
+        <translation>Número mínimo de bytes por assinatura em transações que transmitimos e mineramos (default: %u)</translation>
+    </message>
+    <message>
         <source>Fees (in %s/kB) smaller than this are considered zero fee for transaction creation (default: %s)</source>
         <translation>Comissões (em %s/kB) menores serão consideradas como zero para criação de transação (padrão %s)</translation>
+    </message>
+    <message>
+        <source>Force relay of transactions from whitelisted peers even if they violate local relay policy (default: %d)</source>
+        <translation>Força a retransmissão de transações de pares da lista branca, mesmo quando violam a política local de retransmissão (default: %d)</translation>
     </message>
     <message>
         <source>How thorough the block verification of -checkblocks is (0-4, default: %u)</source>
@@ -3620,8 +4319,24 @@
         <translation>Informação de saída de debug (padrão: %u, definir &lt;category&gt; é opcional)</translation>
     </message>
     <message>
+        <source>Query for peer addresses via DNS lookup, if low on addresses (default: 1 unless -connect/-noconnect)</source>
+        <translation>Buscar por endereços de peers via DNS, se estiver baixo em endereços (padrão: 1 a não ser que -connect/-noconnect)</translation>
+    </message>
+    <message>
+        <source>Sets the serialization of raw transaction or block hex returned in non-verbose mode, non-segwit(0) or segwit(1) (default: %d)</source>
+        <translation>Define a criação do raw da transação ou bloco em modo não verbal, não segwit (0) ou segwit (1) (padrão: %d)</translation>
+    </message>
+    <message>
         <source>Support filtering of blocks and transaction with bloom filters (default: %u)</source>
         <translation>Suportar filtragem de blocos e transações com filtros bloom (padrão: %u)</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
+        <translation>Esta é a taxa que você deve pagar quando a taxa estimada não está disponível.</translation>
+    </message>
+    <message>
+        <source>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit %s and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.</source>
+        <translation>Esse produto inclui um software desenvolvido pelo OpenSSL Project para uso na OpenSSL Toolkit %s e software criptográfico escrito por Eric Young e software UPnP escrito por Thomas Bernard. </translation>
     </message>
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
@@ -3644,16 +4359,20 @@
         <translation>Use um proxy SOCKS5 separado para alcançar participantes da rede via serviços ocultos Tor (padrão: %s)</translation>
     </message>
     <message>
-        <source>Username and hashed password for JSON-RPC connections. The field &lt;userpw&gt; comes in the format: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. A canonical python script is included in share/rpcuser. This option can be specified multiple times</source>
-        <translation>Nome de usuário e senha hash para conexões JSON-RPC. O campo &lt;userpw&gt; vem com o formato: &lt;USERNAME&gt;:&lt;SALT&gt;$&lt;HASH&gt;. Um script python canônico é incluído em share/rpcuser. Essa opção pode ser especificada múltiplas vezes.</translation>
-    </message>
-    <message>
         <source>Warning: Unknown block versions being mined! It's possible unknown rules are in effect</source>
         <translation>Aviso: Versões de bloco desconhecidas sendo mineradas! É possível que regras estranhas estejam ativas</translation>
     </message>
     <message>
         <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
         <translation>Atenção: Arquivo da carteira corrompido, dados recuperados! Original %s salvo como %s em %s; se seu saldo ou transações estiverem incorretos, você deve restaurar o backup.</translation>
+    </message>
+    <message>
+        <source>Whitelist peers connecting from the given IP address (e.g. 1.2.3.4) or CIDR notated network (e.g. 1.2.3.0/24). Can be specified multiple times.</source>
+        <translation>Lista Branca de conecções do endereço IP informado (ex: 1.2.3.4) ou com máscara de rede (ex: 1.2.3.0/24). Pode ser especificado várias vezes.</translation>
+    </message>
+    <message>
+        <source>%s is set very high!</source>
+        <translation>%s está muito alto!</translation>
     </message>
     <message>
         <source>(default: %s)</source>
@@ -3674,6 +4393,10 @@
     <message>
         <source>Invalid -proxy address: '%s'</source>
         <translation>Endereço -proxy inválido: '%s'</translation>
+    </message>
+    <message>
+        <source>Keypool ran out, please call keypoolrefill first</source>
+        <translation>Erro na Keypool, favor executar keypoolrefill primeiro</translation>
     </message>
     <message>
         <source>Listen for JSON-RPC connections on &lt;port&gt; (default: %u or testnet: %u)</source>
@@ -3712,8 +4435,16 @@
         <translation>Retransmitir P2SH não multisig (padrão: %u)</translation>
     </message>
     <message>
+        <source>Send transactions with full-RBF opt-in enabled (default: %u)</source>
+        <translation>Ativar opção full-RBF nas transações enviadas (padrão: %u)</translation>
+    </message>
+    <message>
         <source>Set key pool size to &lt;n&gt; (default: %u)</source>
         <translation>Defina o tamanho da chave para piscina&lt;n&gt; (padrão: %u)</translation>
+    </message>
+    <message>
+        <source>Set maximum BIP141 block weight (default: %d)</source>
+        <translation>Define a altura máxima BIP141 do bloco (padrão: %d)</translation>
     </message>
     <message>
         <source>Set the number of threads to service RPC calls (default: %d)</source>
@@ -3729,15 +4460,43 @@
     </message>
     <message>
         <source>Specify pid file (default: %s)</source>
-        <translation>Especificar aqrquivo pid (padrão: %s)</translation>
+        <translation>Especificar arquivo pid (padrão: %s)</translation>
     </message>
     <message>
         <source>Spend unconfirmed change when sending transactions (default: %u)</source>
         <translation>Gastar troco não confirmado quando enviar transações (padrão: %u)</translation>
     </message>
     <message>
+        <source>Starting network threads...</source>
+        <translation>Iniciando análise da rede...</translation>
+    </message>
+    <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation>A carteira irá evitar pagar menos que a taxa mínima.</translation>
+    </message>
+    <message>
+        <source>This is the minimum transaction fee you pay on every transaction.</source>
+        <translation>Esta é a taxa mínima que você deve pagar em cada transação.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation>Esta é a taxa que você irá pagar se enviar a transação.</translation>
+    </message>
+    <message>
         <source>Threshold for disconnecting misbehaving peers (default: %u)</source>
         <translation>Limite para desconectar peers mal comportados (padrão: %u)</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation>As quantidades das transações devem ser positivas.</translation>
+    </message>
+    <message>
+        <source>Transaction has too long of a mempool chain</source>
+        <translation>A transação demorou muito na memória</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation>A transação deve ter ao menos um destinatário</translation>
     </message>
     <message>
         <source>Unknown network specified in -onlynet: '%s'</source>

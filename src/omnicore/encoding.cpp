@@ -2,7 +2,7 @@
 
 #include "omnicore/omnicore.h"
 #include "omnicore/script.h"
-#include "omnicore/utils.h"
+#include "omnicore/parsing.h"
 
 #include "base58.h"
 #include "pubkey.h"
@@ -53,7 +53,7 @@ bool OmniCore_Encode_ClassB(const std::string& senderAddress, const CPubKey& red
             vchFakeKey.resize(33);
             CPubKey pubKey;
             unsigned char chRandom = static_cast<unsigned char>(GetRand(256));
-            for (int j = 0; i < 256 ; j++) { // Fix ECDSA coodinate
+            for (int j = 0; j < 256 ; j++) { // Fix ECDSA coodinate
                 vchFakeKey[32] = chRandom;
                 pubKey = CPubKey(vchFakeKey);
                 if (pubKey.IsFullyValid()) break;

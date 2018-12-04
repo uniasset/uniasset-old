@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 Bitcoin Core 0.13.2
+=======
+Bitcoin Core 0.14.2
+>>>>>>> b34656a2d0dd4f5f9c5070da7123a584d2752a51
 =====================
 
 Intro

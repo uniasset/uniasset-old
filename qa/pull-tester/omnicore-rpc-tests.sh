@@ -4,8 +4,8 @@
 CURDIR=$(cd $(dirname "$0"); pwd)
 . "${CURDIR}/tests_config.py"
 
-OMNICORED="$BUILDDIR/src/omnicored$EXEEXT"
-OMNICORECLI="$BUILDDIR/src/omnicore-cli$EXEEXT"
+OMNICORED="$BUILDDIR/src/uniassetd$EXEEXT"
+OMNICORECLI="$BUILDDIR/src/uniasset-cli$EXEEXT"
 TESTDIR="$BUILDDIR/qa/tmp/omnicore-rpc-tests"
 DATADIR="$TESTDIR/.bitcoin"
 

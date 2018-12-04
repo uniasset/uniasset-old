@@ -11,18 +11,21 @@
 #include "walletmodel.h"
 
 #include "omnicore/createpayload.h"
+#include "omnicore/dbtradelist.h"
 #include "omnicore/errors.h"
 #include "omnicore/mdex.h"
 #include "omnicore/omnicore.h"
 #include "omnicore/parse_string.h"
 #include "omnicore/pending.h"
-#include "omnicore/rules.h"
 #include "omnicore/rpctxobject.h"
+#include "omnicore/rules.h"
 #include "omnicore/sp.h"
 #include "omnicore/tally.h"
-#include "omnicore/utilsbitcoin.h"
-#include "omnicore/wallettxs.h"
 #include "omnicore/uint256_extensions.h"
+#include "omnicore/utilsbitcoin.h"
+#include "omnicore/wallettxbuilder.h"
+#include "omnicore/walletutils.h"
+
 #include "amount.h"
 #include "sync.h"
 #include "uint256.h"
@@ -143,7 +146,7 @@ void MetaDExDialog::PopulateAddresses()
             (my_it->second).init();
             while (0 != (id = (my_it->second).next())) {
                 if (id == propertyId) {
-                    if (!getUserAvailableMPbalance(address, propertyId)) continue; // ignore this address, has no available balance to spend
+                    if (!GetAvailableTokenBalance(address, propertyId)) continue; // ignore this address, has no available balance to spend
                     if (IsMyAddress(address)) ui->comboAddress->addItem((my_it->first).c_str()); // only include wallet addresses
                 }
             }
@@ -206,7 +209,7 @@ void MetaDExDialog::UpdateBalance()
         ui->lblFeeWarning->setVisible(false);
     } else {
         uint32_t propertyId = GetPropForSale();
-        int64_t balanceAvailable = getUserAvailableMPbalance(currentSetAddress.toStdString(), propertyId);
+        int64_t balanceAvailable = GetAvailableTokenBalance(currentSetAddress.toStdString(), propertyId);
         string sellBalStr;
         if (isPropertyDivisible(propertyId)) {
             sellBalStr = FormatDivisibleMP(balanceAvailable);
@@ -492,7 +495,7 @@ void MetaDExDialog::sendTrade()
 
     // check if sending address has enough funds
     int64_t balanceAvailable = 0;
-    balanceAvailable = getUserAvailableMPbalance(strFromAddress, GetPropForSale());
+    balanceAvailable = GetAvailableTokenBalance(strFromAddress, GetPropForSale());
     if (amountForSale > balanceAvailable) {
         QMessageBox::critical( this, "Unable to send MetaDEx transaction",
         "The selected sending address does not have a sufficient balance to cover the amount entered.\n\nPlease double-check the transction details thoroughly before retrying your transaction." );
