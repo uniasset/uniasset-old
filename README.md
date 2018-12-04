@@ -3,16 +3,16 @@ Omni Core (beta) integration/staging tree
 
 [![Build Status](https://travis-ci.org/uniasset/uniasset.svg?branch=uniasset-0.13)](https://travis-ci.org/uniasset/uniasset)
 
-What is the Omni Layer
+What is the UniAsset
 ----------------------
-The Omni Layer is a communications protocol that uses the Bitcoin block chain to enable features such as smart contracts, user currencies and decentralized peer-to-peer exchanges. A common analogy that is used to describe the relation of the Omni Layer to Bitcoin is that of HTTP to TCP/IP: HTTP, like the Omni Layer, is the application layer to the more fundamental transport and internet layer of TCP/IP, like Bitcoin.
+The UniAsset is a communications protocol that uses the Bitcoin block chain to enable features such as smart contracts, user currencies and decentralized peer-to-peer exchanges. A common analogy that is used to describe the relation of the UniAsset to Bitcoin is that of HTTP to TCP/IP: HTTP, like the UniAsset, is the application layer to the more fundamental transport and internet layer of TCP/IP, like Bitcoin.
 
 http://www.omnilayer.org
 
 What is Omni Core
 -----------------
 
-Omni Core is a fast, portable Omni Layer implementation that is based off the Bitcoin Core codebase (currently 0.13). This implementation requires no external dependencies extraneous to Bitcoin Core, and is native to the Bitcoin network just like other Bitcoin nodes. It currently supports a wallet mode and is seamlessly available on three platforms: Windows, Linux and Mac OS. Omni Layer extensions are exposed via the JSON-RPC interface. Development has been consolidated on the Omni Core product, and it is the reference client for the Omni Layer.
+Omni Core is a fast, portable UniAsset implementation that is based off the Bitcoin Core codebase (currently 0.13). This implementation requires no external dependencies extraneous to Bitcoin Core, and is native to the Bitcoin network just like other Bitcoin nodes. It currently supports a wallet mode and is seamlessly available on three platforms: Windows, Linux and Mac OS. UniAsset extensions are exposed via the JSON-RPC interface. Development has been consolidated on the Omni Core product, and it is the reference client for the UniAsset.
 
 ![Omni Core send dialog](https://i.imgur.com/q2obBQC.png "A screenshot of sending tokens with Omni Core")
 
@@ -28,14 +28,14 @@ Disclaimer, warning
 This software is EXPERIMENTAL software. USE ON MAINNET AT YOUR OWN RISK.
 
 By default this software will use your existing Bitcoin wallet, including spending bitcoins contained therein (for example for transaction fees or trading).
-The protocol and transaction processing rules for the Omni Layer are still under active development and are subject to change in future.
+The protocol and transaction processing rules for the UniAsset are still under active development and are subject to change in future.
 Omni Core should be considered an alpha-level product, and you use it at your own risk. Neither the Omni Foundation nor the Omni Core developers assumes any responsibility for funds misplaced, mishandled, lost, or misallocated.
 
-Further, please note that this installation of Omni Core should be viewed as EXPERIMENTAL. Your wallet data, bitcoins and Omni Layer tokens may be lost, deleted, or corrupted, with or without warning due to bugs or glitches. Please take caution.
+Further, please note that this installation of Omni Core should be viewed as EXPERIMENTAL. Your wallet data, bitcoins and UniAsset tokens may be lost, deleted, or corrupted, with or without warning due to bugs or glitches. Please take caution.
 
 This software is provided open-source at no cost. You are responsible for knowing the law in your country and determining if your use of this software contravenes any local laws.
 
-PLEASE DO NOT use wallet(s) with significant amounts of bitcoins or Omni Layer tokens while testing!
+PLEASE DO NOT use wallet(s) with significant amounts of bitcoins or UniAsset tokens while testing!
 
 Testnet
 -------
@@ -83,7 +83,7 @@ Once complete:
 cd src/
 ```
 And start Omni Core using `./omnicored` (or `./qt/omnicore-qt` if built with UI). The inital parse step for a first time run
-will take up to 60 minutes or more, during this time your client will scan the blockchain for Omni Layer transactions. You can view the
+will take up to 60 minutes or more, during this time your client will scan the blockchain for UniAsset transactions. You can view the
 output of the parsing at any time by viewing the log located in your datadir, by default: `~/.bitcoin/omnicore.log`.
 
 Omni Core requires the transaction index to be enabled. Add an entry to your bitcoin.conf file for `txindex=1` to enable it or Omni Core will refuse to start.
@@ -107,13 +107,13 @@ Current feature set:
 
 * Broadcasting of simple send (tx 0) [doc](src/omnicore/doc/rpc-api.md#omni_send) and send to owners (tx 3) [doc](src/omnicore/doc/rpc-api.md#omni_sendsto)
 
-* Obtaining a Omni Layer balance [doc](src/omnicore/doc/rpc-api.md#omni_getbalance)
+* Obtaining a UniAsset balance [doc](src/omnicore/doc/rpc-api.md#omni_getbalance)
 
 * Obtaining all balances (including smart property) for an address [doc](src/omnicore/doc/rpc-api.md#omni_getallbalancesforaddress)
 
 * Obtaining all balances associated with a specific smart property [doc](src/omnicore/doc/rpc-api.md#omni_getallbalancesforid)
 
-* Retrieving information about any Omni Layer transaction [doc](src/omnicore/doc/rpc-api.md#omni_gettransaction)
+* Retrieving information about any UniAsset transaction [doc](src/omnicore/doc/rpc-api.md#omni_gettransaction)
 
 * Listing historical transactions of addresses in the wallet [doc](src/omnicore/doc/rpc-api.md#omni_listtransactions)
 
@@ -123,7 +123,7 @@ Current feature set:
 
 * Sending a specific BTC amount to a receiver with referenceamount in `omni_send`
 
-* Creating and broadcasting transactions based on raw Omni Layer transactions with `omni_sendrawtx`
+* Creating and broadcasting transactions based on raw UniAsset transactions with `omni_sendrawtx`
 
 * Functional UI for balances, sending and historical transactions
 
